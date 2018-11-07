@@ -7,9 +7,9 @@
 using namespace std;
 
 
-Vec::double r() const { return sqrt(_x*_x + _y * _y + _z * _z); }
-Vec::double r2() const { return _x * _x + _y * _y + _z * _z; }
-Vec::double mult(Vec u) const { return _x*u._x + _y*u._y + _z*u._z; }
+double Vec::r() const { return sqrt(_x*_x + _y * _y + _z * _z); }
+double Vec::r2() const { return _x * _x + _y * _y + _z * _z; }
+double Vec::mult(Vec u) const { return _x*u._x + _y*u._y + _z*u._z; }
 
 Vec& Vec::operator+=(Vec v) {
 	_x += v._x;
@@ -39,7 +39,7 @@ Vec& Vec::operator/=(double s) {
 	return *this;
 }
 
-Vec& operator*=(Vec v) {
+Vec& Vec::operator*=(Vec v) {
 	double a = _x;
 	double b = _y;
 	double c = _z;
