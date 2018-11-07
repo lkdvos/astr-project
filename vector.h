@@ -16,23 +16,23 @@ class Vec {
 
 public:
 
-\\constructor
+//constructor
 	Vec() { _x = 0; _y = 0; _z = 0; }
 	Vec(double x, double y, double z) { _x = x;  _y = y; _z = z; }
 
-\\getter
+//getter
 	double x() const { return _x; }
 	double y() const { return _y; }
 	double z() const { return _z; }
 
-\\define norm
+//define norm
 	double r() const;
 	double r2() const;
   
- \\define inproduct
+ //define inproduct
 	double mult(Vec u) const;
 
-\\define assignment operators
+//define assignment operators
 	Vec& operator+=(Vec v);
 	Vec& operator-=(Vec v);
 	Vec& operator*=(double s);
@@ -41,19 +41,19 @@ public:
 };
 
 
-\\define vector/vector operators
+//define vector/vector operators
 Vec operator+(Vec a, Vec b);
 Vec operator-(Vec a, Vec b);
 Vec operator*(Vec a, Vec b);
 
-\\define vector/scalar operators
+//define vector/scalar operators
 Vec operator*(Vec a, double s);
 Vec operator*(double s, Vec a);
 Vec operator/(double s, Vec a);
 Vec operator/(Vec a, double s);
 
-\\function for printing vectors
+//function for printing vectors
 void print(Vec a);
 
-\\function for printing scalars
+//function for printing scalars
 void print(double s);
