@@ -3,63 +3,51 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include "vector.h" // include header
 using namespace std;
 
-class Vec {
-	double _x;
-	double _y;
-	double _z;
 
-public:
-	Vec() { _x = 0; _y = 0; _z = 0; }
-	Vec(double x, double y, double z) { _x = x;  _y = y; _z = z; }
+Vec::double r() const { return sqrt(_x*_x + _y * _y + _z * _z); }
+Vec::double r2() const { return _x * _x + _y * _y + _z * _z; }
+Vec::double mult(Vec u) const { return _x*u._x + _y*u._y + _z*u._z; }
 
-	double x() const { return _x; }
-	double y() const { return _y; }
-	double z() const { return _z; }
+Vec& Vec::operator+=(Vec v) {
+	_x += v._x;
+	_y += v._y;
+	_z += v._z;
+	return *this;
+}
 
-	double r() const { return sqrt(_x*_x + _y * _y + _z * _z); }
-	double r2() const { return _x * _x + _y * _y + _z * _z; }
-	double mult(Vec u) const { return _x*u._x + _y*u._y + _z*u._z; }
+Vec& Vec::operator-=(Vec v) {
+	_x -= v._x;
+	_y -= v._y;
+	_z -= v._z;
+	return *this;
+}
 
-	Vec& operator+=(Vec v) {
-		_x += v._x;
-		_y += v._y;
-		_z += v._z;
-		return *this;
-	}
+Vec& Vec::operator*=(double s) {
+	_x *= s;
+	_y *= s;
+	_z *= s;
+	return *this;
+}
 
-	Vec& operator-=(Vec v) {
-		_x -= v._x;
-		_y -= v._y;
-		_z -= v._z;
-		return *this;
-	}
+Vec& Vec::operator/=(double s) {
+	_x /= s;
+	_y /= s;
+	_z /= s;
+	return *this;
+}
 
-	Vec& operator*=(double s) {
-		_x *= s;
-		_y *= s;
-		_z *= s;
-		return *this;
-	}
-
-	Vec& operator/=(double s) {
-		_x /= s;
-		_y /= s;
-		_z /= s;
-		return *this;
-	}
-
-	Vec& operator*=(Vec v) {
-		double a = _x;
-		double b = _y;
-		double c = _z;
-		_x = b* v._z - c * v._y;
-		_y = c * v._x - a * v._z;
-		_z = a * v._y - b * v._x;
-		return *this;
-	}
-};
+Vec& operator*=(Vec v) {
+	double a = _x;
+	double b = _y;
+	double c = _z;
+	_x = b* v._z - c * v._y;
+	_y = c * v._x - a * v._z;
+	_z = a * v._y - b * v._x;
+	return *this;
+}
 
 Vec operator+(Vec a, Vec b) { return a += b; }
 Vec operator-(Vec a, Vec b) { return a -= b; }
