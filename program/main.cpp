@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "main.h"
+#include "integrator.h"
 using namespace std;
 
 /*
@@ -56,7 +57,15 @@ you can print the current state of the constellation to a datafile with
 string path = "path";
 name.printFile(path);
 where path specifies the path to the data file
-
+================================================================================
+you can get information about the current state by:
+Constellation.N(); //returns amount of particles
+Constellation.time();
+Constellation.energy(); //returns initial energy (from when last particle is added)
+Constellation.particle(n); //returns the nth body
+Constellation.calcEpot();
+Constellation.calcEtot();
+Constellation.calcEkin();
 */
 
 int main() {
