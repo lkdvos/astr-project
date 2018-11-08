@@ -4,7 +4,6 @@
 //
 //==============================================================================
 
-
 //safeguard includes
 #ifndef VECTOR_H
 #define VECTOR_H
@@ -42,7 +41,7 @@ public:
 	double y() const { return _y; }
 	double z() const { return _z; }
 
-//declare norm
+//declare norm functions
 	double r() const;
 	double r2() const;
 
@@ -55,8 +54,13 @@ public:
 	Vec& operator*=(double s);
 	Vec& operator/=(double s);
 	Vec& operator*=(Vec v);
+
+//friend function for acces to private class data
+	friend ostream& operator<<(ostream& os, const Vec& a);
 };
 
+//declare operator for printing
+ostream& operator<<(ostream& os, const Vec& a);
 
 //declare vector/vector operators
 Vec operator+(Vec a, Vec b);
@@ -69,22 +73,13 @@ Vec operator*(double s, Vec a);
 Vec operator/(double s, Vec a);
 Vec operator/(Vec a, double s);
 
-//declare function for printing vectors
-void print(Vec a);
-
-//==============================================================================
-
-//declare function for printing scalars
-void print(double s);
-
 //==============================================================================
 //
-//create class for 6D vectors containing position and velocity
+//create class for 2*3D vectors containing position and velocity
 //
 //==============================================================================
 
 class phaseVec {
-//class that represents a 2*3D vector (position/velocity)
 	Vec _x;
 	Vec _v;
 
@@ -109,11 +104,18 @@ public:
 	phaseVec& operator-=(phaseVec v);
 	phaseVec& operator*=(double s);
 	phaseVec& operator/=(double s);
+
+//print operators
+	friend ostream& operator<<(ostream& os, const phaseVec& v);
 };
+
+ostream& operator<<(ostream& os, const phaseVec& v);
 
 //declare phasevector/phasevector operators
 phaseVec operator+(phaseVec a, phaseVec b);
 phaseVec operator-(phaseVec a, phaseVec b);
+phaseVec operator*(phaseVec a, double s);
+phaseVec operator/(phaseVec a, double s);
 
 //==============================================================================
 //
@@ -140,14 +142,31 @@ public:
 	Vec pos() const { return _x; }
 	Vec vel() const { return _v; }
 	double m() const { return _m; }
+	double x() const;
+	double y() const;
+	double z() const;
+	double v_x() const;
+	double v_y() const;
+	double v_z() const;
 
-//declare body/phaseVec operators
+//declare body/phaseVec assignment operators
 	Body& operator+=(phaseVec b);
 	Body& operator-=(phaseVec b);
 	Body& operator/=(double s);
 	Body& operator*=(double s);
 
+//operator for easy printing
+//need friend function to acces private class data
+	friend ostream& operator<<(ostream& os, const Body& b);
 };
+
+//declare body/phaseVec operators
+Body operator+(Body b, phaseVec v);
+Body operator-(Body b, phaseVec v);
+Body operator/(Body b, double s);
+Body operator*(Body b, double s);
+
+ostream& operator<<(ostream& os, const Body& b);
 
 //==============================================================================
 //
@@ -168,6 +187,9 @@ vector<phaseVec> operator/(vector<phaseVec> a, double s);
 //
 //==============================================================================
 
+Vec grav(size_t i, vector<Body> y);
+vector<phaseVec> driverFunc(double t, vector<Body> y);
+
 class Constellation {
 	double _t;
 	double _E;
@@ -180,19 +202,42 @@ public:
 	Constellation(vector<Body> y);
 
 //getter
-	Body particle(size_t n);
-	double time();
-	double energy();
+	size_t N() const;
+	Body particle(size_t n) const;
+	double time() const;
+	double energy() const;
+
+//add body after creation
+	void addBody(Body y_n);
 
 //evolve system
 	void RK4update(double h);
 
-
 //calculate energy
-	double calcE();
+	double calcEpot() const;
+	double calcEkin() const;
+	double calcEtot() const;
 
 //print state
-	void print();
+	friend ostream& operator<<(ostream& os, const Constellation& y);
+	void print() const;
+	void printFile(const string outfile) const;
 };
+
+ostream& operator<<(ostream& os, const Constellation& y);
+
+//==============================================================================
+//
+//printing neccesities
+//
+//==============================================================================
+
+//==============================================================================
+
+
+void printer(double s);
+void printer(Vec a);
+void printer(vector<phaseVec> k);
+void printer(vector<Body> y);
 
 #endif
