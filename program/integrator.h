@@ -8,20 +8,22 @@
 #include <iostream>
 using namespace std;
 
-class phaseVec;
+//include the data structures from "vector.h"
+#include "vector.h"
 
+//driver functions
+//==============================================================================
 
+vector<phaseVec> driverFunc(const Constellation& a);
 
+//RK4 integrator dependencies:
+//==============================================================================
 
-//declare driver function
-phaseVec driver(const double t, const phaseVec y);
+vector<phaseVec> k_1(const double h, const Constellation& a);
+vector<phaseVec> k_2(const double h, const Constellation& a);
+vector<phaseVec> k_3(const double h, const Constellation& a);
+vector<phaseVec> k_4(const double h, const Constellation& a);
 
-
-//declare RK4 functions
-phaseVec k_1(double h, double t, phaseVec y);
-phaseVec k_2(double h, double t, phaseVec y);
-phaseVec k_3(double h, double t, phaseVec y);
-phaseVec k_4(double h, double t, phaseVec y);
-
+vector<phaseVec> RK4(const double h, const Constellation& a);
 
 #endif
