@@ -20,9 +20,9 @@ vector<phaseVec> driverFunc(const Constellation& a);
 //==============================================================================
 
 vector<phaseVec> k_1(const double h, const Constellation& a);
-vector<phaseVec> k_2(const double h, const Constellation& a);
-vector<phaseVec> k_3(const double h, const Constellation& a);
-vector<phaseVec> k_4(const double h, const Constellation& a);
+vector<phaseVec> k_2(const double h, Constellation a);
+vector<phaseVec> k_3(const double h, Constellation a);
+vector<phaseVec> k_4(const double h, Constellation a);
 
 vector<phaseVec> RK4(const double h, const Constellation& a);
 

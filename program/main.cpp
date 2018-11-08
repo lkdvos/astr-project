@@ -103,7 +103,12 @@ int main() {
       //print data only every 100 points.
       a.printFile(outfile);
     }
-    a.RK4update(h);
+
+    //create vectors with change, defined in integrator.h
+    vector<phaseVec> update = RK4(h, a);
+    //update constellation
+    a.addT(h);
+    a.addVec(update);
   }
   a.printFile(outfile);
 }

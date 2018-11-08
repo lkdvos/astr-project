@@ -6,6 +6,14 @@
 #include "integrator.h" // include header
 using namespace std;
 
+//==============================================================================
+//
+//define some constants
+//
+//==============================================================================
+
+const double G = 1;
+
 //implement driver function on a Constellation
 //==============================================================================
 
@@ -39,19 +47,25 @@ vector<phaseVec> k_1(const double h, const Constellation& a) {
 vector<phaseVec> k_2(const double h, Constellation a) {
   //need to explicitely copy constellation to change time and position
   //without changing original constellation
-  return h * driverFunc(a.addT(h/2).addY(k_1/2));
+  a.addT(h/2);
+  a.addVec(k_1(h, a)/2);
+  return h * driverFunc(a);
 }
 
 vector<phaseVec> k_3(const double h, Constellation a){
   //idem as before
-  return h * driverFunc(a.addT(h/2).addY(k_2/2));
+  a.addT(h/2);
+  a.addVec(k_2(h, a)/2);
+  return h * driverFunc(a);
 }
 
 vector<phaseVec> k_4(const double h,  Constellation a){
   //idem as before
-  return h * driverFunc(a.addT(h).addY(k_3));
+  a.addT(h);
+  a.addVec(k_3(h, a));
+  return h * driverFunc(a);
 }
 
 vector<phaseVec> RK4(const double h, const Constellation& a) {
-  return k_1 / 6 + k_2 / 3 + k_3 / 3 + k_4 / 6;
+  return k_1(h, a) / 6 + k_2(h, a) / 3 + k_3(h, a) / 3 + k_4(h, a) / 6;
 }

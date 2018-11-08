@@ -236,6 +236,21 @@ vector<Body> operator+(vector<Body> a, phaseVec v) {
 	return output;
 }
 
+vector<phaseVec> operator+(vector<phaseVec> v, vector<phaseVec> w) {
+	vector<phaseVec> output(v.size());
+	for (size_t i=0; i!=v.size(); ++i) {
+		output[i] = v[i] + w[i];
+	}
+	return output;
+}
+vector<phaseVec> operator-(vector<phaseVec> v, vector<phaseVec> w) {
+	vector<phaseVec> output(v.size());
+	for (size_t i=0; i!=v.size(); ++i) {
+		output[i] = v[i] - w[i];
+	}
+	return output;
+}
+
 vector<phaseVec> operator/(vector<phaseVec> a, double s) {
 	//todo: add check for size of vectors...
 	vector<phaseVec> output(a.size());

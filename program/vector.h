@@ -179,6 +179,8 @@ ostream& operator<<(ostream& os, const Body& b);
 vector<Body> operator+(vector<Body> a, vector<phaseVec> b);
 vector<Body> operator-(vector<Body> a, vector<phaseVec> b);
 vector<Body> operator+(vector<Body> a, phaseVec b);
+vector<phaseVec> operator+(vector<phaseVec> v, vector<phaseVec> w);
+vector<phaseVec> operator-(vector<phaseVec> v, vector<phaseVec> w);
 vector<phaseVec> operator*(vector<phaseVec> a, double s);
 vector<phaseVec> operator*(double s, vector<phaseVec> a);
 vector<phaseVec> operator/(vector<phaseVec> a, double s);
