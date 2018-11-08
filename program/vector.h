@@ -187,8 +187,7 @@ vector<phaseVec> operator/(vector<phaseVec> a, double s);
 //
 //==============================================================================
 
-Vec grav(size_t i, vector<Body> y);
-vector<phaseVec> driverFunc(double t, vector<Body> y);
+vector<phaseVec> driverFuncHelp(double t, vector<Body>& y);
 
 class Constellation {
 	double _t;
@@ -209,6 +208,10 @@ public:
 
 //add body after creation
 	void addBody(Body y_n);
+
+//give driverfunction of current state, with optional offset
+	vector<phaseVec> driverFunc() const ;
+	vector<phaseVec> driverFunc(double t, const vector<phaseVec>&) const;
 
 //evolve system
 	void RK4update(double h);
