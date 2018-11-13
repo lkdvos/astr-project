@@ -44,6 +44,7 @@ public:
 //declare norm functions
 	double r() const;
 	double r2() const;
+	double r3() const;
 
 //declare inproduct
 	double mult(Vec u) const;
@@ -177,6 +178,9 @@ ostream& operator<<(ostream& os, const Body& b);
 
 vector<Body> operator+(vector<Body> a, vector<phaseVec> b);
 vector<Body> operator-(vector<Body> a, vector<phaseVec> b);
+vector<Body> operator+(vector<Body> a, phaseVec b);
+vector<phaseVec> operator+(vector<phaseVec> v, vector<phaseVec> w);
+vector<phaseVec> operator-(vector<phaseVec> v, vector<phaseVec> w);
 vector<phaseVec> operator*(vector<phaseVec> a, double s);
 vector<phaseVec> operator*(double s, vector<phaseVec> a);
 vector<phaseVec> operator/(vector<phaseVec> a, double s);
@@ -202,19 +206,17 @@ public:
 
 //getter
 	size_t N() const;
-	Body particle(size_t n) const;
+	Body body(size_t n) const;
 	double time() const;
 	double energy() const;
 
 //add body after creation
 	void addBody(Body y_n);
 
-//give driverfunction of current state, with optional offset
-	vector<phaseVec> driverFunc() const ;
-	vector<phaseVec> driverFunc(double t, const vector<phaseVec>&) const;
-
-//evolve system
-	void RK4update(double h);
+//update system
+	void addVec(const vector<phaseVec>& y);
+	void addT(double t);
+	void transform(const phaseVec& y_n);
 
 //calculate energy
 	double calcEpot() const;
@@ -234,9 +236,6 @@ ostream& operator<<(ostream& os, const Constellation& y);
 //printing neccesities
 //
 //==============================================================================
-
-//==============================================================================
-
 
 void printer(double s);
 void printer(Vec a);

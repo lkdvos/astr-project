@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "main.h"
+#include "integrator.h"
 using namespace std;
 
 /*
@@ -56,7 +57,15 @@ you can print the current state of the constellation to a datafile with
 string path = "path";
 name.printFile(path);
 where path specifies the path to the data file
-
+================================================================================
+you can get information about the current state by:
+Constellation.N(); //returns amount of particles
+Constellation.time();
+Constellation.energy(); //returns initial energy (from when last particle is added)
+Constellation.particle(n); //returns the nth body
+Constellation.calcEpot();
+Constellation.calcEtot();
+Constellation.calcEkin();
 */
 
 int main() {
@@ -94,7 +103,12 @@ int main() {
       //print data only every 100 points.
       a.printFile(outfile);
     }
-    a.RK4update(h);
+
+    //create vectors with change, defined in integrator.h
+    vector<phaseVec> update = RK4(h, a);
+    //update constellation
+    a.addT(h);
+    a.addVec(update);
   }
   a.printFile(outfile);
 }

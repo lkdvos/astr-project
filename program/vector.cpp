@@ -34,7 +34,7 @@ const double G = 1;
 //implement norm functions
 double Vec::r() const { return sqrt(_x * _x + _y * _y + _z * _z); }
 double Vec::r2() const { return _x * _x + _y * _y + _z * _z; }
-
+double Vec::r3() const { return r()*r2(); }
 //implement inproduct
 double Vec::mult(Vec u) const { return _x*u._x + _y*u._y + _z*u._z; }
 
@@ -228,6 +228,29 @@ vector<Body> operator-(vector<Body> a,vector<phaseVec> b) {
 	return output;
 }
 
+vector<Body> operator+(vector<Body> a, phaseVec v) {
+	vector<Body> output(a.size());
+	for (size_t i=0; i!=a.size(); ++i) {
+		output[i] = a[i] + v;
+	}
+	return output;
+}
+
+vector<phaseVec> operator+(vector<phaseVec> v, vector<phaseVec> w) {
+	vector<phaseVec> output(v.size());
+	for (size_t i=0; i!=v.size(); ++i) {
+		output[i] = v[i] + w[i];
+	}
+	return output;
+}
+vector<phaseVec> operator-(vector<phaseVec> v, vector<phaseVec> w) {
+	vector<phaseVec> output(v.size());
+	for (size_t i=0; i!=v.size(); ++i) {
+		output[i] = v[i] - w[i];
+	}
+	return output;
+}
+
 vector<phaseVec> operator/(vector<phaseVec> a, double s) {
 	//todo: add check for size of vectors...
 	vector<phaseVec> output(a.size());
@@ -291,7 +314,7 @@ size_t Constellation::N() const {
 	return _y.size();
 }
 
-Body Constellation::particle(size_t n) const {
+Body Constellation::body(size_t n) const {
 	return _y[n];
 }
 
@@ -309,7 +332,6 @@ void Constellation::addBody(Body y_n) {
 	_y.push_back(y_n);
 	_E = calcEtot();
 }
-
 
 //functions for calculating energy of configuration
 //==============================================================================
@@ -337,46 +359,19 @@ double Constellation::calcEtot() const {
 	return calcEpot() + calcEkin();
 }
 
-//defining driver functions for current constellation
-//==============================================================================
-
-vector<phaseVec> driverFuncHelp(double t, const vector<Body>& y) {
-	vector<phaseVec> output(y.size());
-
-	for (size_t i=0; i!=y.size(); ++i) {
-		Vec x_punt = y[i].vel();
-		Vec v_punt;
-		for (size_t j=0; j!=y.size(); ++j) {
-			if (i != j) {
-				Vec r_rel = y[i].pos() - y[j].pos();
-				v_punt -= G * y[j].m() * r_rel / r_rel.r2() / r_rel.r();
-			}
-		}
-		output[i] = phaseVec(x_punt, v_punt);
-	}
-
-	return output;
-}
-
-vector<phaseVec> Constellation::driverFunc() const {
-	return driverFuncHelp(_t, _y);
-}
-
-vector<phaseVec> Constellation::driverFunc(double t, const vector<phaseVec>& y) const {
-	return driverFuncHelp(_t + t, _y + y);
-}
-
 //Update Constellation
 //==============================================================================
 
-void Constellation::RK4update(const double h) {
-	vector<phaseVec> k_1 = h * driverFunc();
-	vector<phaseVec> k_2 = h * driverFunc(h/2, k_1/2);
-	vector<phaseVec> k_3 = h * driverFunc(h/2, k_2/2);
-	vector<phaseVec> k_4 = h * driverFunc(h, k_3);
+void Constellation::addVec(const vector<phaseVec>& y) {
+	_y = _y + y;
+}
 
-	_y = _y + k_1/6 + k_2/3 + k_3/3 + k_4/6;
-	_t += h;
+void Constellation::addT(double t) {
+	_t += t;
+}
+
+void Constellation::transform(const phaseVec& y_n) {
+	_y = _y + y_n;
 }
 
 //functions for printing the current Constellation
