@@ -125,8 +125,9 @@ int main() {
         printInterval = 1;
       }
 
-      
+
       RK4(h, steps, printInterval, filename, a);
+      Verlet(h, steps, printInterval, filename, a);
     }
 
 
