@@ -15,6 +15,9 @@ import matplotlib.animation as animation
 invoer = np.loadtxt("program/data/{}.txt".format(filename))
 n = int((len(invoer[0])-1)/6) #aantal deeltjes
 
+#kleuren maken
+colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
+
 #omvormen naar lijst van deze vorm:
 #[ [[x1,y1,z1][x2,y2,z2]...[xn,yn,zn]](t0)
 #     [[x1,y1,y2][x2,y2,z2]...[xn,yn,zn]](t1)   ... (tn)]
@@ -61,19 +64,21 @@ ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
 
+ax.set_xlim(xmin, xmax)
+ax.set_ylim(ymin, ymax)
+ax.set_zlim(zmin, zmax)
 
 
-print(len(punten))
+t = ax.set_title('t = 0')
+temp = [ax.scatter3D(punten[0][i][0], punten[0][i][1], punten[0][i][2]) for i in range(n)]
 
 def update(p, *fargs):
-    plt.cla()
-    ax.set_xlim(xmin, xmax)
-    ax.set_ylim(ymin, ymax)
-    ax.set_zlim(zmin, zmax)
-    ax.set_title('t = {}'.format(round(tijd[p])))
 
+    t = ax.set_title('t = {}'.format(round(tijd[p])))
+    for elem in temp:
+        elem.remove()
     for i in range(n):
-        ax.scatter3D(punten[p][i][0], punten[p][i][1], punten[p][i][2])
+        temp[i] = ax.scatter3D(punten[p][i][0], punten[p][i][1], punten[p][i][2], c=colors[i%len(colors)])
 
 ani = animation.FuncAnimation(fig, update, frames = len(punten), fargs=(10,), interval = 100, blit = False)
 plt.show()
