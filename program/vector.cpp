@@ -405,7 +405,7 @@ void Constellation::printFile(const string outfile) const {
 void Constellation::printEnergy(const string outfile) const {
 	ofstream f(outfile, ios::app);
 	f << _t;
-	f << sep << (_E - calcEtot())/_E << '\n';
+	f << sep << abs((_E - calcEtot())/_E) << '\n';
 	f.close();
 }
 
