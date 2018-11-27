@@ -62,10 +62,18 @@ ax.set_zlabel('Z')
 ax.set_zlim(zmin, zmax)
 
 def update(p, *fargs):
+
+    plt.cla()
     ax.set_title('t = {}'.format(round(tijd[p])))
+    ax.set_xlabel('X')
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylabel('Y')
+    ax.set_ylim(ymin, ymax)
+    ax.set_zlabel('Z')
+    ax.set_zlim(zmin, zmax)
     for i in range(n):
         ax.scatter3D(punten[p][i][0], punten[p][i][1], punten[p][i][2])
 
 ani = animation.FuncAnimation(fig, update, frames = len(punten), fargs=(10,), interval = 100, blit = False)
 plt.show()
-ani.save("program/data/{}.mp4".format(filename), writer='ffmpeg')
+#ani.save("program/data/test.mp4", writer='ffmpeg')
