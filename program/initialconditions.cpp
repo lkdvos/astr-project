@@ -15,20 +15,22 @@
 #include "initialconditions.h"
 using namespace std;
 
-// Function that reads out initial conditions for a certain N-body simulation 
+double G = 1;
+
+// Function that reads out initial conditions for a certain N-body simulation
 // (contained in a file) and returns a vector containing the particles of the simulation
 vector<Body> initialisation(string filename)
 	{
 	ifstream file_input(filename);
 	// Initialise vector of particles
 	vector<Body> bodies;
-	
+
 	//==============================================================================
 	//
 	// Initialise mass, velocity components and position components for particles
 	//
 	//==============================================================================
-	
+
 	double x = 0;
 	double y = 0;
 	double z = 0;
@@ -40,6 +42,8 @@ vector<Body> initialisation(string filename)
 	// The number of particles in the simulation is defined as numpart
 	int numpart = 0;
 	file_input >> numpart;
+	// define a G for the relevant data (this specifies the units)
+	file_input >> G;
 	for (int i=0; i<numpart; i++)	// For-loop that reads out lines of file line by line
 		{
 		file_input >> x >> y >> z >> vx >> vy >> vz >> m;
@@ -49,8 +53,3 @@ vector<Body> initialisation(string filename)
 		}
 	return bodies;
 	}
-
-
-
-
-

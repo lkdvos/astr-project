@@ -12,7 +12,7 @@ using namespace std;
 //
 //==============================================================================
 
-const double G = 1;
+extern double G;
 
 //implement driver function on a Constellation
 //==============================================================================

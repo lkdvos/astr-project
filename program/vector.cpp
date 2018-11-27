@@ -21,7 +21,7 @@ using namespace std;
 //define seperator for data files
 const char sep = '\t';
 //const double G = 6.67408 * pow(10, -11);
-const double G = 1;
+extern double G;
 
 
 //==============================================================================
