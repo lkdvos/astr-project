@@ -389,7 +389,6 @@ void Constellation::print() const {
 void Constellation::printFile(const string outfile) const {
 	ofstream f;
 	f.open(outfile, ios::app);
-	f << setprecision(15);
 
 
 	f << _t;

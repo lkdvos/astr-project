@@ -5,7 +5,7 @@ Created on Wed Nov 14 22:39:28 2018
 @author: Iris
 """
 
-filename = "SunEarth"
+filename = "SolarSystem"
 
 #tijd x1 y1 z1 vx1 vy1 vz1 x2... xn yn zn vxn vyn vzn
 import numpy as np
@@ -19,17 +19,18 @@ n = int((len(invoer[0])-1)/6) #aantal deeltjes
 #[ [[x1,y1,z1][x2,y2,z2]...[xn,yn,zn]](t0)
 #     [[x1,y1,y2][x2,y2,z2]...[xn,yn,zn]](t1)   ... (tn)]
 
-
+print(n)
 
 
 punten = []
 tijd = []
-for lijn in invoer:
+for lijn in invoer[1:500]:
     tijd.append(lijn[0])
     deel = []
     for i in range(n):
         deel.append([lijn[1+i*6], lijn[2+i*6], lijn[3+i*6]])
     punten.append(deel)
+print(punten)
 
 #grenzen vinden
 xvals = []
@@ -50,30 +51,30 @@ ymax = max(yvals)
 zmin = min(zvals)
 zmax = max(zvals)
 
-
+print(xmin, xmax)
+print(ymin, ymax)
+print(zmin, zmax)
 
 fig = plt.figure()
 ax = plt.axes(projection='3d')
 ax.set_xlabel('X')
-ax.set_xlim(xmin, xmax)
 ax.set_ylabel('Y')
-ax.set_ylim(ymin, ymax)
 ax.set_zlabel('Z')
-ax.set_zlim(zmin, zmax)
+
+
+
+print(len(punten))
 
 def update(p, *fargs):
-
     plt.cla()
+    ax.set_xlim(-15, 15)
+    ax.set_ylim(-15, 15)
+    ax.set_zlim(-15, 15)
     ax.set_title('t = {}'.format(round(tijd[p])))
-    ax.set_xlabel('X')
-    ax.set_xlim(xmin, xmax)
-    ax.set_ylabel('Y')
-    ax.set_ylim(ymin, ymax)
-    ax.set_zlabel('Z')
-    ax.set_zlim(zmin, zmax)
+
     for i in range(n):
         ax.scatter3D(punten[p][i][0], punten[p][i][1], punten[p][i][2])
 
 ani = animation.FuncAnimation(fig, update, frames = len(punten), fargs=(10,), interval = 100, blit = False)
 plt.show()
-#ani.save("program/data/test.mp4", writer='ffmpeg')
+#ani.save("program/data/{}.mp4".format(filename), writer='ffmpeg')

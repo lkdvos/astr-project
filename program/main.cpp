@@ -6,6 +6,7 @@
 
 #include "main.h"
 #include "integrator.h"
+#include "initialconditions.h"
 using namespace std;
 
 /*
@@ -69,14 +70,27 @@ Constellation.calcEkin();
 */
 
 int main() {
-/*example code*/
 
+  // Define timestep h and number of timesteps
+  double h = 0.000001;
+  size_t steps = 10000000;
+  size_t printInterval = 10000;
+  string filename;
+  string initConditions;
+  cout << "Filename with initial conditions:" << endl;
+  // Read in filename that is given as input in the terminal by the user
+  cin >> filename;
+  // Initialise vector of particles
+  vector<Body> bodies;
+  // Change location of initial conditions
+  initConditions = "init/" + filename + ".txt";
+  // Create vector of particles that are described in the text file
+  bodies = initialisation(initConditions);
+
+/*
+//create first body
   double sunMass = 1000000;
   double earthMass = 1;
-  double h = 0.1;
-  size_t steps = 10000;
-
-//create first body
   Body sun(0, 0, 0, 0, 0, 0, sunMass);
   cout << "sun " << sun << endl;
 //create second body
@@ -86,20 +100,20 @@ int main() {
   Body moon(0, 100, 0, 0, 0, -1, 1);
 //combine bodies
   vector<Body> y = {sun, earth, moon};
-
+*/
 //create constellation
-  Constellation a(y);
+  Constellation a(bodies);
 
 //create datafile (also resets the file)
-  string outfile = "data/data.txt";
-  ofstream f(outfile);
-  f.open("data/data.txt", ios::trunc);
+  string outfile = "data/" + filename + ".txt";
+  ofstream f(outfile, ios::trunc);
   f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << setprecision(5);
   f.close();
 
 //use the RK4 integrator to update and print to file
   for (size_t i=0; i!=steps; ++i) {
-    if (i%100 == 0) {
+    if (i%printInterval == 0) {
       //print data only every 100 points.
       a.printFile(outfile);
     }
