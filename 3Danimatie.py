@@ -67,9 +67,9 @@ print(len(punten))
 
 def update(p, *fargs):
     plt.cla()
-    ax.set_xlim(-15, 15)
-    ax.set_ylim(-15, 15)
-    ax.set_zlim(-15, 15)
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    ax.set_zlim(zmin, zmax)
     ax.set_title('t = {}'.format(round(tijd[p])))
 
     for i in range(n):
