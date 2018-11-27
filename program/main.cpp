@@ -72,22 +72,65 @@ Constellation.calcEkin();
 int main() {
 
   // Define timestep h and number of timesteps
-  double h = 0.000001;
-  size_t steps = 1000000;
-  size_t printInterval = 1000;
+  double h;
+  size_t steps;
+  size_t printInterval;
   string filename;
-  string initConditions;
-  cout << "Filename with initial conditions:" << endl;
-  // Read in filename that is given as input in the terminal by the user
-  cin >> filename;
-  // Initialise vector of particles
-  vector<Body> bodies;
-  // Change location of initial conditions
-  initConditions = "init/" + filename + ".txt";
-  // Create vector of particles that are described in the text file
-  bodies = initialisation(initConditions);
-  Constellation a(bodies);
+  bool busy = true;
 
-  RK4(h, steps, printInterval, filename, a);
+  while (busy) {
+    //read in all variables
+    cout << "Please provide a filename with initial conditions." << endl;
+    cout << "If empty, you will have to specify an amount of randomly generated particles" << endl;
+    cout << "If quit, the program will terminate." << endl;
+    cout << endl;
+
+    cout << "Filename with initial conditions:" << endl;
+    cin >> filename;
+    if (filename == "quit") {
+      busy = false;
+    } else if (filename == "") {
+      cout << "How many particles?" << endl;
+      filename = "data1";
+      busy = false;
+      //need to implement this WIP
+    } else {
+      cout << "reading initial values" << endl;
+      // Initialise vector of particles
+      vector<Body> bodies;
+      // Create vector of particles that are described in the text file
+      bodies = initialisation("init/" + filename + ".txt");
+      Constellation a(bodies);
+
+
+      // ask for h, steps, printInterval
+      cout << "h:" << endl;
+      cin >> h;
+
+      cout << "steps:" << endl;
+      cin >> steps;
+
+      cout << "printInterval" << endl;
+      cin >> printInterval;
+
+
+      //set default values if none specified
+      if (h == 0) {
+        h = 0.001;
+      }
+      if (steps == 0) {
+        steps = 1000;
+      }
+      if (printInterval == 0) {
+        printInterval = 1;
+      }
+
+      
+      RK4(h, steps, printInterval, filename, a);
+    }
+
+
+
+  }
 
 }
