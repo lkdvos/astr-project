@@ -6,6 +6,7 @@
 
 #include "main.h"
 #include "integrator.h"
+#include "initialconditions.h"
 using namespace std;
 
 /*
@@ -69,14 +70,23 @@ Constellation.calcEkin();
 */
 
 int main() {
-/*example code*/
 
+  // Define timestep h and number of timesteps
+  double h = 0.00001;
+  size_t steps = 10000;
+  string filename;
+  cout << "Filename with initial conditions:" << endl;
+  // Read in filename that is given as input in the terminal by the user
+  cin >> filename;
+  // Initialise vector of particles
+  vector<Body> bodies;
+  // Create vector of particles that are described in the text file
+  bodies = initialisation(filename);
+
+/*
+//create first body
   double sunMass = 1000000;
   double earthMass = 1;
-  double h = 0.1;
-  size_t steps = 10000;
-
-//create first body
   Body sun(0, 0, 0, 0, 0, 0, sunMass);
   cout << "sun " << sun << endl;
 //create second body
@@ -86,9 +96,9 @@ int main() {
   Body moon(0, 100, 0, 0, 0, -1, 1);
 //combine bodies
   vector<Body> y = {sun, earth, moon};
-
+*/
 //create constellation
-  Constellation a(y);
+  Constellation a(bodies);
 
 //create datafile (also resets the file)
   string outfile = "data/data.txt";
