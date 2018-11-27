@@ -75,13 +75,16 @@ int main() {
   double h = 0.00001;
   size_t steps = 10000;
   string filename;
+  string initConditions;
   cout << "Filename with initial conditions:" << endl;
   // Read in filename that is given as input in the terminal by the user
   cin >> filename;
   // Initialise vector of particles
   vector<Body> bodies;
+  // Change location of initial conditions
+  initConditions = "init/" + filename + ".txt";
   // Create vector of particles that are described in the text file
-  bodies = initialisation(filename);
+  bodies = initialisation(initConditions);
 
 /*
 //create first body
@@ -101,9 +104,8 @@ int main() {
   Constellation a(bodies);
 
 //create datafile (also resets the file)
-  string outfile = "data/data.txt";
-  ofstream f(outfile);
-  f.open("data/data.txt", ios::trunc);
+  string outfile = "data/" + filename;
+  ofstream f(outfile, ios::trunc);
   f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
   f.close();
 
