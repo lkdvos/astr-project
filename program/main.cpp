@@ -73,8 +73,8 @@ int main() {
 
   // Define timestep h and number of timesteps
   double h = 0.000001;
-  size_t steps = 10000000;
-  size_t printInterval = 10000;
+  size_t steps = 1000000;
+  size_t printInterval = 1000;
   string filename;
   string initConditions;
   cout << "Filename with initial conditions:" << endl;
