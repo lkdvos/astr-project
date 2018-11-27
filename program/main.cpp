@@ -86,43 +86,8 @@ int main() {
   initConditions = "init/" + filename + ".txt";
   // Create vector of particles that are described in the text file
   bodies = initialisation(initConditions);
-
-/*
-//create first body
-  double sunMass = 1000000;
-  double earthMass = 1;
-  Body sun(0, 0, 0, 0, 0, 0, sunMass);
-  cout << "sun " << sun << endl;
-//create second body
-  Body earth(-100, 0, 0, 0, 1, 0, earthMass);
-  cout << "earth "<< earth << endl;
-//create third body
-  Body moon(0, 100, 0, 0, 0, -1, 1);
-//combine bodies
-  vector<Body> y = {sun, earth, moon};
-*/
-//create constellation
   Constellation a(bodies);
 
-//create datafile (also resets the file)
-  string outfile = "data/" + filename + ".txt";
-  ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
-  f << setprecision(5);
-  f.close();
+  RK4(h, steps, printInterval, filename, a);
 
-//use the RK4 integrator to update and print to file
-  for (size_t i=0; i!=steps; ++i) {
-    if (i%printInterval == 0) {
-      //print data only every 100 points.
-      a.printFile(outfile);
-    }
-
-    //create vectors with change, defined in integrator.h
-    vector<phaseVec> update = RK4(h, a);
-    //update constellation
-    a.addT(h);
-    a.addVec(update);
-  }
-  a.printFile(outfile);
 }

@@ -69,3 +69,34 @@ vector<phaseVec> k_4(const double h,  Constellation a){
 vector<phaseVec> RK4(const double h, const Constellation& a) {
   return k_1(h, a) / 6 + k_2(h, a) / 3 + k_3(h, a) / 3 + k_4(h, a) / 6;
 }
+
+void RK4(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
+  //create datafile (also resets the file)
+  string outfile = "data/" + filename + ".txt";
+  ofstream f(outfile, ios::trunc);
+  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << setprecision(5);
+  f.close();
+
+
+  string outfile_Energy = "data/" + filename + "_Energy.txt";
+  ofstream g(outfile_Energy, ios::trunc);
+  g << "#{tijd} #Energiefout \n";
+  g << setprecision(5);
+  g.close();
+
+  for (size_t i=0; i!=steps; ++i) {
+    if (i%printInterval == 0) {
+      //print data only every printInterval points.
+      a.printFile(outfile);
+      a.printEnergy(outfile_Energy);
+    }
+
+    //create vectors with change
+    vector<phaseVec> update = RK4(h, a);
+    //update constellation
+    a.addT(h);
+    a.addVec(update);
+  }
+
+}

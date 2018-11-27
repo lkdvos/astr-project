@@ -338,19 +338,21 @@ void Constellation::addBody(Body y_n) {
 double Constellation::calcEpot() const {
 	double output = 0;
 	for (size_t i=0; i!=N(); ++i) {
-		output += 0.5 * _y[i].m() * _y[i].vel().r2();
-	}
-	return output;
-}
-
-double Constellation::calcEkin() const {
-	double output = 0;
-	for (size_t i=0; i!=N(); ++i) {
 		for (size_t j=0; j!=N(); ++j) {
 			if (i != j) {
 				output += G * _y[i].m() * _y[j].m() / (_y[i].pos() - _y[j].pos()).r();
 			}
 		}
+	}
+	return output / 2;
+}
+
+
+
+double Constellation::calcEkin() const {
+	double output = 0;
+	for (size_t i=0; i!=N(); ++i) {
+		output += _y[i].m() * _y[i].vel().r2();
 	}
 	return output / 2;
 }
@@ -397,6 +399,13 @@ void Constellation::printFile(const string outfile) const {
 	}
 	f << '\n';
 
+	f.close();
+}
+
+void Constellation::printEnergy(const string outfile) const {
+	ofstream f(outfile, ios::app);
+	f << _t;
+	f << sep << (_E - calcEtot())/_E << '\n';
 	f.close();
 }
 

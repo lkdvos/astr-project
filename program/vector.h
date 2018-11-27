@@ -227,6 +227,7 @@ public:
 	friend ostream& operator<<(ostream& os, const Constellation& y);
 	void print() const;
 	void printFile(const string outfile) const;
+	void printEnergy(const string outfile) const;
 };
 
 ostream& operator<<(ostream& os, const Constellation& y);

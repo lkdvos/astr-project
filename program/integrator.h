@@ -25,5 +25,6 @@ vector<phaseVec> k_3(const double h, Constellation a);
 vector<phaseVec> k_4(const double h, Constellation a);
 
 vector<phaseVec> RK4(const double h, const Constellation& a);
+void RK4(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
 
 #endif
