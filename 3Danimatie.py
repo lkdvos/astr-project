@@ -5,14 +5,14 @@ Created on Wed Nov 14 22:39:28 2018
 @author: Iris
 """
 
-filename = "SunEarthL1"
+filename = "SunEarth"
 
 #tijd x1 y1 z1 vx1 vy1 vz1 x2... xn yn zn vxn vyn vzn
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
-invoer = np.loadtxt("program/data/{}.txt".format(filename))
+invoer = np.loadtxt("program/data/{}Verlet.txt".format(filename))
 n = int((len(invoer[0])-1)/6) #aantal deeltjes
 
 #kleuren maken
