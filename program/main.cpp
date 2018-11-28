@@ -142,10 +142,10 @@ int main() {
       }
 
 
-      RK4(h, steps, printInterval, filename, a);
-      Verlet(h, steps, printInterval, filename, a);
-
-
+      //RK4(h, steps, printInterval, filename, a);
+      //Verlet(h, steps, printInterval, filename, a);
+      //ERK(h, steps, printInterval, filename, a);
+      FR(h, steps, printInterval, filename, a);
 
     }
 
