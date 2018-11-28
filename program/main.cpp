@@ -9,6 +9,11 @@
 #include "initialconditions.h"
 using namespace std;
 
+extern double G;
+extern double xscale;
+extern double vscale;
+extern double Mscale;
+
 /*
 To compile the multiple files:
 LINUX:
@@ -101,11 +106,22 @@ int main() {
       // Create vector of particles that are described in the text file
       bodies = initialisation("init/" + filename + ".txt");
       Constellation a(bodies);
-
+      a.scaleMass();
+      a.center();
+      a.rescale();
+      cout << "Mscale = " << Mscale << endl;
+      cout << "xscale = " << xscale << endl;
+      cout << "tscale = " << tscale << endl;
+      cout << "G = " << G << endl;
+      cout << "a = " << a << endl;
+      cout << "Ebegin = " << a.calcEpot() << '\t' << a.calcEkin() << '\t' << a.calcEtot() << endl;
 
       // ask for h, steps, printInterval
-      cout << "h:" << endl;
+      cout << "h (in days):" << endl;
       cin >> h;
+
+      //rescale timestep in days
+      h *= 24*3600/tscale;
 
       cout << "steps:" << endl;
       cin >> steps;
@@ -116,10 +132,10 @@ int main() {
 
       //set default values if none specified
       if (h == 0) {
-        h = 0.001;
+        h = 1;
       }
       if (steps == 0) {
-        steps = 1000;
+        steps = 365;
       }
       if (printInterval == 0) {
         printInterval = 1;
@@ -128,6 +144,9 @@ int main() {
 
       RK4(h, steps, printInterval, filename, a);
       Verlet(h, steps, printInterval, filename, a);
+
+
+
     }
 
 
