@@ -46,4 +46,6 @@ void ERK(const double h, const size_t steps, const size_t printInterval, const s
 void FR1(const double h, Constellation& a);
 void FR(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
 
+void run(const string method, const double h, const double endTime, const size_t printInterval, const string filename, Constellation a);
+
 #endif

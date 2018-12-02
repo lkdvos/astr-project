@@ -15,7 +15,8 @@
 #include "initialconditions.h"
 using namespace std;
 
-double G = 1;
+extern double G;
+extern double tscale;
 
 // Function that reads out initial conditions for a certain N-body simulation
 // (contained in a file) and returns a vector containing the particles of the simulation
@@ -44,6 +45,7 @@ vector<Body> initialisation(string filename)
 	file_input >> numpart;
 	// define a G for the relevant data (this specifies the units)
 	file_input >> G;
+	file_input >> tscale;
 	for (int i=0; i<numpart; i++)	// For-loop that reads out lines of file line by line
 		{
 		file_input >> x >> y >> z >> vx >> vy >> vz >> m;

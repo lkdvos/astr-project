@@ -19,9 +19,9 @@ using namespace std;
 //==============================================================================
 
 //const double G = 6.67408 * pow(10, -11);
-double xscale = 1;
-double tscale = 1;
-double Mscale = 1;
+extern double xscale;
+extern double tscale;
+extern double Mscale;
 
 
 //==============================================================================
@@ -411,7 +411,7 @@ void Constellation::center() {
 }
 
 void Constellation::scaleMass(double Mtot) {
-	Mscale = Mtot / totalMass();
+	Mscale *= Mtot / totalMass();
 	G /= Mscale;
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changeMass(Mscale);
@@ -420,14 +420,14 @@ void Constellation::scaleMass(double Mtot) {
 
 void Constellation::rescale() {
 
-	xscale = calcEpot() * -2;
+	xscale *= calcEpot() * -2;
 	G *= pow(xscale, 3);
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changePos(xscale);
 		_y[i].changeVel(xscale);
 	}
 
-	tscale = pow(calcEkin(), -0.5) / 2;
+	tscale *= pow(calcEkin(), -0.5) / 2;
 	G *= pow(tscale, 2);
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changeVel(tscale);

@@ -12,7 +12,7 @@ using namespace std;
 
 extern double G;
 extern double xscale;
-extern double vscale;
+extern double tscale;
 extern double Mscale;
 
 
