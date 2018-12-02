@@ -99,18 +99,26 @@ def update(p, *fargs):
 	#Uncomment this if you want to plot an inputfile that contains Earth/Moon system and/or Jupiter/Io system.
 
 	ax1 = plt.subplot(131)
+	ax1.set_xlim(xmin, xmax)
+	ax1.set_ylim(ymin, ymax)
+	ax1.set_xlabel('X')
+	ax1.set_ylabel('Y')
 	ax1.plot(punten[:p,i,0], punten[:p,i,1], linestyle='-', marker='None', color=colors[i], label=objects[i])
 	if i==1 or i==2:
 	    ax2 = plt.subplot(132)
 	    ax2.plot(punten[p,i,0] - punten[p,1,0], punten[p,i,1] - punten[p,1,1], marker='o', color=colors[i], label='')
 	    ax2.set_xlim(-0.003,0.003)
 	    ax2.set_ylim(-0.003,0.003)
+	    ax2.set_xlabel('X')
+	    ax2.set_ylabel('Y')
 	if i==3 or i==4:
 	    ax3 = plt.subplot(133)
 	    ax3.plot(punten[p,i,0] - punten[p,3,0], punten[p,i,1] - punten[p,3,1], marker='o', color=colors[i], label='')
 	    ax3.set_xlim(-0.003,0.003)
 	    ax3.set_ylim(-0.003,0.003)
-        """
+	    ax3.set_xlabel('X')
+	    ax3.set_ylabel('Y')
+	"""
 
     if p==1:
 	
