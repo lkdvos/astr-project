@@ -37,7 +37,7 @@ vector<phaseVec> gravity(const Constellation& a) {
   return output;
 }
 
-vector<phaseVec> speed(const Constellation& a) {
+vector<phaseVec> xpunt(const Constellation& a) {
   size_t N = a.N();
   vector<phaseVec> output(N);
 
@@ -51,17 +51,8 @@ vector<phaseVec> speed(const Constellation& a) {
 }
 
 vector<phaseVec> driverFunc(const Constellation& a) {
-  //create output vector of size N
-  size_t N = a.N();
-  //fill in v_punt
-  vector<phaseVec> output = gravity(a);
-
-  //fill in x_punt
-  for (size_t i=0; i!=N; ++i) {
-    Vec x_punt = a.body(i).vel();
-    Vec v_punt;
-    output[i] += phaseVec(x_punt, v_punt);
-  }
+  //fill in v_punt and x_punt
+  vector<phaseVec> output = gravity(a) + xpunt(a);
 	return output;
 }
 
@@ -135,7 +126,7 @@ void Verlet1(const double h, Constellation& a, vector<phaseVec>& driver) {
   a.addVec(h / 2 * driver);
 
   //update positions to n+1
-  a.addVec(h * speed(a));
+  a.addVec(h * xpunt(a));
 
   //update velocities to n+1
   driver = gravity(a);
@@ -263,17 +254,14 @@ vector<Vec> accel(Constellation a, vector<Vec> x_change) {
 	return out;
 }
 
-vector<phaseVec> FR1(double h, Constellation a) {
-	const size_t N = a.N();
-	vector<Vec> v(N);
-	vector<Vec> x(N);
-	vector<phaseVec> out(N);
-	for (size_t i=0; i != N; ++i) {
-		v[i] = a.body(i).vel();
-		x[i] = a.body(i).pos();
-	}
+void FR1(const double h, Constellation& a) {
 
 	//step 1
+
+  a.addVec(xpunt(a) * theta / 2 * h);
+  a.addVec(gravity(a) * theta * h);
+
+  /*
 
 	vector<Vec> x1(N);
 	vector<Vec> v1(N);
@@ -285,12 +273,13 @@ vector<phaseVec> FR1(double h, Constellation a) {
 	for (size_t i=0; i != N; ++i) {
 		v1[i] = theta * h*ac1[i];
 	}
-
+  */
 	//step 2
 
-	vector<Vec> x2(N);
-	vector<Vec> v2(N);
-	vector<Vec> ac2(N);
+  a.addVec(xpunt(a) * (1 - theta) / 2 * h);
+  a.addVec(gravity(a) * (1 - 2*theta) * h);
+
+  /*
 
 	for (size_t i=0; i != N; ++i) {
 		x2[i] = x1[i] + 1 / 2 * (1 - theta)*h*(v[i] + v1[i]);
@@ -299,13 +288,12 @@ vector<phaseVec> FR1(double h, Constellation a) {
 	for (size_t i=0; i != N; ++i) {
 		v2[i] = v1[i] + (1 - 2 * theta)*h*ac2[i];
 	}
-
+  */
 	//step 3
 
-	vector<Vec> x3(N);
-	vector<Vec> v3(N);
-	vector<Vec> ac3(N);
-
+  a.addVec(xpunt(a) * (1 - theta) / 2 * h);
+  a.addVec(gravity(a) * theta * h);
+  /*
 	for (size_t i=0; i != N; ++i) {
 		x3[i] = x2[i] + 1 / 2 * (1 - theta)*h*(v[i] + v2[i]);
 	}
@@ -313,9 +301,13 @@ vector<phaseVec> FR1(double h, Constellation a) {
 	for (size_t i=0; i != N; ++i) {
 		v3[i] = v2[i] + theta * h*ac3[i];
 	}
+*/
+	//final evaluation of the position and time update
 
-	//final evaluation of the position and the return
+  a.addVec(xpunt(a) * theta / 2 * h);
+  a.addT(h);
 
+  /*
 	vector<Vec> x4(N);
 	for (size_t i=0; i != N; ++i) {
 		x4[i] = x3[i] + theta / 2 * h*(v[i] + v3[i]);
@@ -324,7 +316,7 @@ vector<phaseVec> FR1(double h, Constellation a) {
 	for (size_t i=0; i != N; ++i) {
 		out[i] = phaseVec(x4[i], v3[i]);
 	}
-	return out;
+	return out;*/
 }
 
 void FR(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
@@ -349,7 +341,6 @@ void FR(const double h, const size_t steps, const size_t printInterval, const st
     }
 
     //update constellation
-    a.addVec(FR1(h, a));
-    a.addT(h);
+    FR1(h, a);
   }
 }

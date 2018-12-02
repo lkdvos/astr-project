@@ -496,12 +496,10 @@ void printer(vector<Body> y) {
 	}
 }
 
-void printer(double s)
-{
+void printer(double s) {
 	cout << s << endl;
 }
 
-void printer(Vec a)
-{
+void printer(Vec a) {
 	cout << '(' << a.x() << ',' << a.y() << ',' << a.z() << ')' << endl;
 }
