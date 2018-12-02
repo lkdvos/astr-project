@@ -9,6 +9,11 @@
 #include "initialconditions.h"
 using namespace std;
 
+extern double G;
+extern double xscale;
+extern double vscale;
+extern double Mscale;
+
 /*
 To compile the multiple files:
 LINUX:
@@ -72,57 +77,80 @@ Constellation.calcEkin();
 int main() {
 
   // Define timestep h and number of timesteps
-  double h = 0.000001;
-  size_t steps = 1000000;
-  size_t printInterval = 1000;
+  double h;
+  size_t steps;
+  size_t printInterval;
   string filename;
-  string initConditions;
-  cout << "Filename with initial conditions:" << endl;
-  // Read in filename that is given as input in the terminal by the user
-  cin >> filename;
-  // Initialise vector of particles
-  vector<Body> bodies;
-  // Change location of initial conditions
-  initConditions = "init/" + filename + ".txt";
-  // Create vector of particles that are described in the text file
-  bodies = initialisation(initConditions);
+  bool busy = true;
 
-/*
-//create first body
-  double sunMass = 1000000;
-  double earthMass = 1;
-  Body sun(0, 0, 0, 0, 0, 0, sunMass);
-  cout << "sun " << sun << endl;
-//create second body
-  Body earth(-100, 0, 0, 0, 1, 0, earthMass);
-  cout << "earth "<< earth << endl;
-//create third body
-  Body moon(0, 100, 0, 0, 0, -1, 1);
-//combine bodies
-  vector<Body> y = {sun, earth, moon};
-*/
-//create constellation
-  Constellation a(bodies);
+  while (busy) {
+    //read in all variables
+    cout << "Please provide a filename with initial conditions." << endl;
+    cout << "If empty, you will have to specify an amount of randomly generated particles" << endl;
+    cout << "If quit, the program will terminate." << endl;
+    cout << endl;
 
-//create datafile (also resets the file)
-  string outfile = "data/" + filename + ".txt";
-  ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
-  f << setprecision(5);
-  f.close();
+    cout << "Filename with initial conditions:" << endl;
+    cin >> filename;
+    if (filename == "quit") {
+      busy = false;
+    } else if (filename == "") {
+      cout << "How many particles?" << endl;
+      filename = "data1";
+      busy = false;
+      //need to implement this WIP
+    } else {
+      cout << "reading initial values" << endl;
+      // Initialise vector of particles
+      vector<Body> bodies;
+      // Create vector of particles that are described in the text file
+      bodies = initialisation("init/" + filename + ".txt");
+      Constellation a(bodies);
+      a.scaleMass();
+      a.center();
+      a.rescale();
+      cout << "Mscale = " << Mscale << endl;
+      cout << "xscale = " << xscale << endl;
+      cout << "tscale = " << tscale << endl;
+      cout << "G = " << G << endl;
+      cout << "a = " << a << endl;
+      cout << "Ebegin = " << a.calcEpot() << '\t' << a.calcEkin() << '\t' << a.calcEtot() << endl;
 
-//use the RK4 integrator to update and print to file
-  for (size_t i=0; i!=steps; ++i) {
-    if (i%printInterval == 0) {
-      //print data only every 100 points.
-      a.printFile(outfile);
+      // ask for h, steps, printInterval
+      cout << "h (in days):" << endl;
+      cin >> h;
+
+      //rescale timestep in days
+      h *= 24*3600/tscale;
+
+      cout << "steps:" << endl;
+      cin >> steps;
+
+      cout << "printInterval" << endl;
+      cin >> printInterval;
+
+
+      //set default values if none specified
+      if (h == 0) {
+        h = 1;
+      }
+      if (steps == 0) {
+        steps = 365;
+      }
+      if (printInterval == 0) {
+        printInterval = 1;
+      }
+
+
+      //RK4(h, steps, printInterval, filename, a);
+      //Verlet(h, steps, printInterval, filename, a);
+      //ERK(h, steps, printInterval, filename, a);
+      FR(h, steps, printInterval, filename, a);
+
     }
 
-    //create vectors with change, defined in integrator.h
-    vector<phaseVec> update = RK4(h, a);
-    //update constellation
-    a.addT(h);
-    a.addVec(update);
+
+
   }
-  a.printFile(outfile);
+
 }

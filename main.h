@@ -10,10 +10,7 @@
 #include "integrator.h"
 using namespace std;
 
-extern double G;
-extern double xscale;
-extern double vscale;
-extern double Mscale;
+
 
 
 int main();

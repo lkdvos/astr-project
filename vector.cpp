@@ -18,10 +18,10 @@ using namespace std;
 //
 //==============================================================================
 
+//define seperator for data files
+const char sep = '\t';
 //const double G = 6.67408 * pow(10, -11);
-double xscale = 1;
-double tscale = 1;
-double Mscale = 1;
+const double G = 1;
 
 
 //==============================================================================
@@ -170,19 +170,6 @@ double Body::v_x() const { return _v.x(); }
 double Body::v_y() const { return _v.y(); }
 double Body::v_z() const { return _v.z(); }
 
-//changing body
-void Body::changeMass(double factor) {
-	_m *= factor;
-}
-
-void Body::changePos(double factor) {
-	_x *= factor;
-}
-
-void Body::changeVel(double factor) {
-	_v *= factor;
-}
-
 //body assignment operators
 //==============================================================================
 Body& Body::operator+=(phaseVec b) {
@@ -303,6 +290,7 @@ ostream& operator<<(ostream& os, const phaseVec& v) {
 	return os;
 }
 
+
 //==============================================================================
 //
 //implement class for a constellation of (variable) N bodys
@@ -345,38 +333,30 @@ void Constellation::addBody(Body y_n) {
 	_E = calcEtot();
 }
 
-//functions for calculating properties of configuration
+//functions for calculating energy of configuration
 //==============================================================================
 double Constellation::calcEpot() const {
 	double output = 0;
 	for (size_t i=0; i!=N(); ++i) {
-		for (size_t j=0; j!=N(); ++j) {
-			if (i!=j) {
-				output += G * _y[i].m() * _y[j].m() / (_y[i].pos() - _y[j].pos()).r();
-			}
-		}
+		output += 0.5 * _y[i].m() * _y[i].vel().r2();
 	}
-	return output / -2;
+	return output;
 }
 
 double Constellation::calcEkin() const {
 	double output = 0;
 	for (size_t i=0; i!=N(); ++i) {
-		output += _y[i].m() * _y[i].vel().r2();
+		for (size_t j=0; j!=N(); ++j) {
+			if (i != j) {
+				output += G * _y[i].m() * _y[j].m() / (_y[i].pos() - _y[j].pos()).r();
+			}
+		}
 	}
 	return output / 2;
 }
 
 double Constellation::calcEtot() const {
 	return calcEpot() + calcEkin();
-}
-
-double Constellation::totalMass() const {
-	double output = 0;
-	for (size_t i=0; i!=N(); ++i) {
-		output += _y[i].m();
-	}
-	return output;
 }
 
 //Update Constellation
@@ -394,57 +374,8 @@ void Constellation::transform(const phaseVec& y_n) {
 	_y = _y + y_n;
 }
 
-//functions for rescaling and recentering
-//==============================================================================
-
-void Constellation::center() {
-	Vec x_com;
-	Vec v_com;
-	double M = totalMass();
-
-	for (size_t i=0; i!=N(); ++i) {
-		x_com += _y[i].m() * _y[i].pos();
-		v_com += _y[i].m() * _y[i].vel();
-	}
-
-	transform(phaseVec(x_com, v_com) / M * -1);
-}
-
-void Constellation::scaleMass(double Mtot) {
-	Mscale = Mtot / totalMass();
-	G /= Mscale;
-	for (size_t i=0; i!=N(); ++i) {
-		_y[i].changeMass(Mscale);
-	}
-}
-
-void Constellation::rescale() {
-
-	xscale = calcEpot() * -2;
-	G *= pow(xscale, 3);
-	for (size_t i=0; i!=N(); ++i) {
-		_y[i].changePos(xscale);
-		_y[i].changeVel(xscale);
-	}
-
-	tscale = pow(calcEkin(), -0.5) / 2;
-	G *= pow(tscale, 2);
-	for (size_t i=0; i!=N(); ++i) {
-		_y[i].changeVel(tscale);
-	}
-}
-
 //functions for printing the current Constellation
 //==============================================================================
-
-ostream& operator<<(ostream& os, const Constellation& a) {
-	os << "constellation with " << a.N() << " particles \n";
-	for (size_t i=0; i!=a.N(); ++i) {
-		os << a.body(i).m() << sep << a.body(i) << "\n";
-	}
-
-	return os;
-}
 
 void Constellation::print() const {
 	cout << "time " << _t << sep << "energy " << _E << sep;
@@ -458,21 +389,15 @@ void Constellation::print() const {
 void Constellation::printFile(const string outfile) const {
 	ofstream f;
 	f.open(outfile, ios::app);
+	f << setprecision(15);
 
 
-	f << _t / 3600 / 24 * tscale;
+	f << _t;
 	for (size_t i=0; i!=_y.size(); ++i) {
 		f << sep << _y[i];
 	}
 	f << '\n';
 
-	f.close();
-}
-
-void Constellation::printEnergy(const string outfile) const {
-	ofstream f(outfile, ios::app);
-	f << _t / 3600 / 24 * tscale;
-	f << sep << abs((_E - calcEtot())/_E) << '\n';
 	f.close();
 }
 

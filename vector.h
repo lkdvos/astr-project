@@ -21,13 +21,7 @@ using namespace std;
 //create class for 3D vectors with operators and assignment operators
 //
 //==============================================================================
-//define seperator for data files
-const char sep = '\t';
-//const double G = 6.67408 * pow(10, -11);
-extern double G;
-extern double xscale;
-extern double tscale;
-extern double Mscale;
+
 
 class Vec {
 	double _x;
@@ -162,11 +156,6 @@ public:
 	Body& operator/=(double s);
 	Body& operator*=(double s);
 
-//change body functions
-	void changeMass(double factor);
-	void changePos(double factor);
-	void changeVel(double factor);
-
 //operator for easy printing
 //need friend function to acces private class data
 	friend ostream& operator<<(ostream& os, const Body& b);
@@ -224,27 +213,20 @@ public:
 //add body after creation
 	void addBody(Body y_n);
 
-//rescale system
-	void center();
-	void rescale();
-	void scaleMass(double Mtot=1);
-
 //update system
 	void addVec(const vector<phaseVec>& y);
 	void addT(double t);
 	void transform(const phaseVec& y_n);
 
-//calculate properties
+//calculate energy
 	double calcEpot() const;
 	double calcEkin() const;
 	double calcEtot() const;
-	double totalMass() const;
 
 //print state
 	friend ostream& operator<<(ostream& os, const Constellation& y);
 	void print() const;
 	void printFile(const string outfile) const;
-	void printEnergy(const string outfile) const;
 };
 
 ostream& operator<<(ostream& os, const Constellation& y);

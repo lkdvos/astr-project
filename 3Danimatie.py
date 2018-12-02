@@ -5,14 +5,14 @@ Created on Wed Nov 14 22:39:28 2018
 @author: Iris
 """
 
-filename = "SolarSystem"
+filename = "SunEarth"
 
 #tijd x1 y1 z1 vx1 vy1 vz1 x2... xn yn zn vxn vyn vzn
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
-invoer = np.loadtxt("program/data/{}.txt".format(filename))
+invoer = np.loadtxt("program/data/{}Verlet.txt".format(filename))
 n = int((len(invoer[0])-1)/6) #aantal deeltjes
 
 #kleuren maken
@@ -74,7 +74,7 @@ temp = [ax.scatter3D(punten[0][i][0], punten[0][i][1], punten[0][i][2]) for i in
 
 def update(p, *fargs):
 
-    t = ax.set_title('t = {}'.format(round(tijd[p])))
+    t = ax.set_title('t = {:05.2f}'.format(tijd[p]))
     for elem in temp:
         elem.remove()
     for i in range(n):
