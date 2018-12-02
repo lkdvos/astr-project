@@ -37,7 +37,7 @@ vector<phaseVec> gravity(const Constellation& a) {
   return output;
 }
 
-vector<phaseVec> speed(const Constellation& a) {
+vector<phaseVec> xpunt(const Constellation& a) {
   size_t N = a.N();
   vector<phaseVec> output(N);
 
@@ -57,11 +57,7 @@ vector<phaseVec> driverFunc(const Constellation& a) {
   vector<phaseVec> output = gravity(a);
 
   //fill in x_punt
-  for (size_t i=0; i!=N; ++i) {
-    Vec x_punt = a.body(i).vel();
-    Vec v_punt;
-    output[i] += phaseVec(x_punt, v_punt);
-  }
+  output += xpunt(a);
 	return output;
 }
 
@@ -135,7 +131,7 @@ void Verlet1(const double h, Constellation& a, vector<phaseVec>& driver) {
   a.addVec(h / 2 * driver);
 
   //update positions to n+1
-  a.addVec(h * speed(a));
+  a.addVec(h * xpunt(a));
 
   //update velocities to n+1
   driver = gravity(a);
