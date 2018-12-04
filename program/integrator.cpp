@@ -202,8 +202,26 @@ vector<phaseVec> K_6(const double h, Constellation a) {
 }
 
 void ERK1(const double h, Constellation& a) {
+	a.addVec(16.0/135.0 * K_1(h, a) + 6656.0/12825.0 * K_3(h, a) + 28561.0 / 56430 * K_4(h, a) - 9.0 / 50 * K_5(h, a) + 2.0/55 * K_6(h, a));
+  a.addT(h);
+}
+
+void ERK2(const double h, Constellation& a) {
 	a.addVec(25.0 / 216 * K_1(h, a) + 1408.0 / 2565 * K_3(h, a) + 2197.0 / 4104 * K_4(h, a) - 1.0 / 5 * K_5(h, a));
   a.addT(h);
+}
+
+
+double error(const Constellation& a, const Constellation& b) {
+  size_t N = a.N();
+  double output = 0;
+  for (size_t i=0; i!=N; ++i) {
+    double err = (a.body(i).pos() - b.body(i).pos()).r();
+    if (err > output) {
+      output = err;
+    }
+  }
+  return output;
 }
 
 void ERK(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
@@ -277,7 +295,7 @@ void FR(const double h, const size_t steps, const size_t printInterval, const st
   }
 }
 
-void run(const string method, const double h, const double endTime, const size_t printInterval, const string filename, Constellation a) {
+void run(const string method, double h, const double endTime, const size_t printInterval, const string filename, Constellation a) {
   //create and reset datafile
   string outfile = "data/" + filename + method + ".txt";
   ofstream f(outfile, ios::trunc);
@@ -288,7 +306,7 @@ void run(const string method, const double h, const double endTime, const size_t
   string outfile_Energy = "data/" + filename + method + "_Energy.txt";
   ofstream g(outfile_Energy, ios::trunc);
   g << "#{tijd} #Energiefout \n";
-  g << setprecision(5);
+  g << setprecision(15);
   g.close();
 
   if (method == "RK4") {
@@ -334,6 +352,36 @@ void run(const string method, const double h, const double endTime, const size_t
         a.printEnergy(outfile_Energy);
       }
       Verlet1(h, a, driver);
+      steps += 1;
+    }
+  } else if (method == "ERK_VAR") {
+    double minError = 1e-5;
+    double maxError = 1e-4;
+    size_t i = 0;
+    while (a.time() < endTime) {
+      if (i%printInterval == 0) {
+        //print data only every printInterval points.
+        a.printFile(outfile);
+        a.printEnergy(outfile_Energy);
+      }
+      i += 1;
+      double err = 1;
+      Constellation b1;
+      Constellation b2;
+      while (err > maxError) {
+        h /= 2.0;
+        b1 = a;
+        b2 = a;
+        ERK1(h, b1);
+        ERK2(h, b2);
+        err = error(b1, b2);
+        cout << "halved step " << h << " at time " << a.time() << endl;
+      }
+      if (err < minError) {
+        h *= 2.0;
+        cout << "doubled step " << h << endl;
+      }
+      a = b1;
       steps += 1;
     }
   } else {

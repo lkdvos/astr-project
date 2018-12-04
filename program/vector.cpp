@@ -471,6 +471,7 @@ void Constellation::printFile(const string outfile) const {
 
 void Constellation::printEnergy(const string outfile) const {
 	ofstream f(outfile, ios::app);
+	f << setprecision(15);
 	f << _t / 3600 / 24 * tscale;
 	f << sep << abs((_E - calcEtot())/_E) << '\n';
 	f.close();
