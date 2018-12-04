@@ -13,12 +13,15 @@ using namespace std;
 //==============================================================================
 
 extern double G;
+extern size_t steps;
+extern size_t funcEvals;
 
 //implement driver function on a Constellation
 //==============================================================================
 
 vector<phaseVec> gravity(const Constellation& a) {
   //create output vector of size N
+  funcEvals += 1;
   size_t N = a.N();
   vector<phaseVec> output(N);
 
@@ -124,15 +127,12 @@ void RK4(const double h, const size_t steps, const size_t printInterval, const s
 void Verlet1(const double h, Constellation& a, vector<phaseVec>& driver) {
   //update velocities to n+1/2
   a.addVec(h / 2 * driver);
-
   //update positions to n+1
   a.addVec(h * xpunt(a));
-
   //update velocities to n+1
   driver = gravity(a);
   a.addVec(h / 2 * driver);
   a.addT(h);
-
 }
 
 
@@ -202,8 +202,26 @@ vector<phaseVec> K_6(const double h, Constellation a) {
 }
 
 void ERK1(const double h, Constellation& a) {
+	a.addVec(16.0/135.0 * K_1(h, a) + 6656.0/12825.0 * K_3(h, a) + 28561.0 / 56430 * K_4(h, a) - 9.0 / 50 * K_5(h, a) + 2.0/55 * K_6(h, a));
+  a.addT(h);
+}
+
+void ERK2(const double h, Constellation& a) {
 	a.addVec(25.0 / 216 * K_1(h, a) + 1408.0 / 2565 * K_3(h, a) + 2197.0 / 4104 * K_4(h, a) - 1.0 / 5 * K_5(h, a));
   a.addT(h);
+}
+
+
+double error(const Constellation& a, const Constellation& b) {
+  size_t N = a.N();
+  double output = 0;
+  for (size_t i=0; i!=N; ++i) {
+    double err = (a.body(i).pos() - b.body(i).pos()).r();
+    if (err > output) {
+      output = err;
+    }
+  }
+  return output;
 }
 
 void ERK(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
@@ -232,91 +250,23 @@ void ERK(const double h, const size_t steps, const size_t printInterval, const s
   }
 }
 
-
 //Forest Ruth
 //==============================================================================
-
 const double theta = 1.35120719195966;
 
-vector<Vec> accel(Constellation a, vector<Vec> x_change) {
-	const size_t N = a.N();
-	vector<Vec> out(N);
-	for (size_t i = 0; i != N; ++i) {
-		Vec v_punt;
-		for (size_t j = 0; j != N; ++j) {
-			if (j != i) {
-				Vec r_rel= a.body(i).pos() + x_change[i] - a.body(j).pos() - x_change[j];
-				v_punt -= G * a.body(j).m()* r_rel / r_rel.r3();
-			}
-		}
-		out[i] = v_punt;
-	}
-	return out;
-}
-
 void FR1(const double h, Constellation& a) {
-
 	//step 1
-
   a.addVec(xpunt(a) * theta / 2 * h);
   a.addVec(gravity(a) * theta * h);
-
-  /*
-
-	vector<Vec> x1(N);
-	vector<Vec> v1(N);
-	vector<Vec> ac1(N);
-	for (size_t i=0; i != N; ++i) {
-		x1[i] = theta / 2 * h*v[i];
-	}
-	ac1 = accel(a, x1);
-	for (size_t i=0; i != N; ++i) {
-		v1[i] = theta * h*ac1[i];
-	}
-  */
-	//step 2
-
+  //step 2
   a.addVec(xpunt(a) * (1 - theta) / 2 * h);
   a.addVec(gravity(a) * (1 - 2*theta) * h);
-
-  /*
-
-	for (size_t i=0; i != N; ++i) {
-		x2[i] = x1[i] + 1 / 2 * (1 - theta)*h*(v[i] + v1[i]);
-	}
-	ac2 = accel(a, x2);
-	for (size_t i=0; i != N; ++i) {
-		v2[i] = v1[i] + (1 - 2 * theta)*h*ac2[i];
-	}
-  */
 	//step 3
-
   a.addVec(xpunt(a) * (1 - theta) / 2 * h);
   a.addVec(gravity(a) * theta * h);
-  /*
-	for (size_t i=0; i != N; ++i) {
-		x3[i] = x2[i] + 1 / 2 * (1 - theta)*h*(v[i] + v2[i]);
-	}
-	ac3 = accel(a, x3);
-	for (size_t i=0; i != N; ++i) {
-		v3[i] = v2[i] + theta * h*ac3[i];
-	}
-*/
 	//final evaluation of the position and time update
-
   a.addVec(xpunt(a) * theta / 2 * h);
   a.addT(h);
-
-  /*
-	vector<Vec> x4(N);
-	for (size_t i=0; i != N; ++i) {
-		x4[i] = x3[i] + theta / 2 * h*(v[i] + v3[i]);
-	}
-
-	for (size_t i=0; i != N; ++i) {
-		out[i] = phaseVec(x4[i], v3[i]);
-	}
-	return out;*/
 }
 
 void FR(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
@@ -342,5 +292,104 @@ void FR(const double h, const size_t steps, const size_t printInterval, const st
 
     //update constellation
     FR1(h, a);
+  }
+}
+
+void run(const string method, double h, const double endTime, const size_t printInterval, const string filename, Constellation a) {
+  //create and reset datafile
+  string outfile = "data/" + filename + method + ".txt";
+  ofstream f(outfile, ios::trunc);
+  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << "#";
+  for (size_t i=0; i!=a.N(); ++i) {
+    f << sep << a.body(i).name();
+  }
+  f << "\n";
+  f << setprecision(10);
+  f.close();
+
+  string outfile_Energy = "data/" + filename + method + "_Energy.txt";
+  ofstream g(outfile_Energy, ios::trunc);
+  g << "#{tijd} #Energiefout \n";
+  g << setprecision(15);
+  g.close();
+
+  if (method == "RK4") {
+    for (size_t i=0; i*h<=endTime; ++i) {
+      if (i%printInterval == 0) {
+        //print data only every printInterval points.
+        a.printFile(outfile);
+        a.printEnergy(outfile_Energy);
+      }
+      //update constellation
+      RK41(h, a);
+      steps += 1;
+    }
+  } else if (method == "FR") {
+    for (size_t i=0; i*h<=endTime; ++i) {
+      if (i%printInterval == 0) {
+        //print data only every printInterval points.
+        a.printFile(outfile);
+        a.printEnergy(outfile_Energy);
+      }
+      //update constellation
+      FR1(h, a);
+      steps += 1;
+    }
+  } else if (method == "ERK") {
+    for (size_t i=0; i*h<=endTime; ++i) {
+      if (i%printInterval == 0) {
+        //print data only every printInterval points.
+        a.printFile(outfile);
+        a.printEnergy(outfile_Energy);
+      }
+      //update constellation
+      ERK1(h, a);
+      steps += 1;
+    }
+  } else if (method == "VER") {
+    //initialize driver outside of update function to avoid calculating twice
+    vector<phaseVec> driver = gravity(a);
+    for (size_t i=0; i*h<=endTime; ++i) {
+      if (i%printInterval == 0) {
+        //print data only every printInterval points.
+        a.printFile(outfile);
+        a.printEnergy(outfile_Energy);
+      }
+      Verlet1(h, a, driver);
+      steps += 1;
+    }
+  } else if (method == "ERK_VAR") {
+    double minError = 1e-5;
+    double maxError = 1e-4;
+    size_t i = 0;
+    while (a.time() < endTime) {
+      if (i%printInterval == 0) {
+        //print data only every printInterval points.
+        a.printFile(outfile);
+        a.printEnergy(outfile_Energy);
+      }
+      i += 1;
+      double err = 1;
+      Constellation b1;
+      Constellation b2;
+      while (err > maxError) {
+        h /= 2.0;
+        b1 = a;
+        b2 = a;
+        ERK1(h, b1);
+        ERK2(h, b2);
+        err = error(b1, b2);
+        cout << "halved step " << h << " at time " << a.time() << endl;
+      }
+      if (err < minError) {
+        h *= 2.0;
+        cout << "doubled step " << h << endl;
+      }
+      a = b1;
+      steps += 1;
+    }
+  } else {
+    cout << "method not recognised" << endl;
   }
 }

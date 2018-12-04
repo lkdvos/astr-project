@@ -19,9 +19,9 @@ using namespace std;
 //==============================================================================
 
 //const double G = 6.67408 * pow(10, -11);
-double xscale = 1;
-double tscale = 1;
-double Mscale = 1;
+extern double xscale;
+extern double tscale;
+extern double Mscale;
 
 
 //==============================================================================
@@ -156,10 +156,11 @@ phaseVec operator/(phaseVec a, double s) { return a /= s; }
 //==============================================================================
 
 //constructor
-Body::Body(double x, double y, double z, double v_x, double v_y, double v_z, double m) {
+Body::Body(double x, double y, double z, double v_x, double v_y, double v_z, double m, string name) {
 	_x = Vec(x, y, z);
 	_v = Vec(v_x, v_y, v_z);
 	_m = m;
+	_name = name;
 }
 
 //getter
@@ -169,6 +170,7 @@ double Body::z() const { return _x.z(); }
 double Body::v_x() const { return _v.x(); }
 double Body::v_y() const { return _v.y(); }
 double Body::v_z() const { return _v.z(); }
+string Body::name() const { return _name; }
 
 //changing body
 void Body::changeMass(double factor) {
@@ -181,6 +183,10 @@ void Body::changePos(double factor) {
 
 void Body::changeVel(double factor) {
 	_v *= factor;
+}
+
+void Body::changeName(string name) {
+	_name = name;
 }
 
 //body assignment operators
@@ -411,7 +417,7 @@ void Constellation::center() {
 }
 
 void Constellation::scaleMass(double Mtot) {
-	Mscale = Mtot / totalMass();
+	Mscale *= Mtot / totalMass();
 	G /= Mscale;
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changeMass(Mscale);
@@ -420,14 +426,14 @@ void Constellation::scaleMass(double Mtot) {
 
 void Constellation::rescale() {
 
-	xscale = calcEpot() * -2;
+	xscale *= calcEpot() * -2;
 	G *= pow(xscale, 3);
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changePos(xscale);
 		_y[i].changeVel(xscale);
 	}
 
-	tscale = pow(calcEkin(), -0.5) / 2;
+	tscale *= pow(calcEkin(), -0.5) / 2;
 	G *= pow(tscale, 2);
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changeVel(tscale);
@@ -471,6 +477,7 @@ void Constellation::printFile(const string outfile) const {
 
 void Constellation::printEnergy(const string outfile) const {
 	ofstream f(outfile, ios::app);
+	f << setprecision(15);
 	f << _t / 3600 / 24 * tscale;
 	f << sep << abs((_E - calcEtot())/_E) << '\n';
 	f.close();
