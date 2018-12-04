@@ -11,8 +11,8 @@ import matplotlib.animation as animation
 #-------------------------------------------------------------------------------
 #===============================================================================
 
-filename = "SolarSystem"
-method = "VER"
+filename = "test"
+method = "ERK"
 
 
 
@@ -20,13 +20,12 @@ frames=1
 scale = 10
 colors = "plasma"
 
-invoer = np.loadtxt("program/data/{}{}.txt".format(filename, method))
-n = int((len(invoer[0])-1)/6) #aantal deeltjes
+invoer = np.loadtxt("program/data/{}{}.txt".format(filename, method), delimiter = '\t', comments='#')
 
 
+Data = np.asarray(invoer, dtype = object)
+transposedData = invoer.T
 
-
-transposedData = np.transpose(invoer)
 N = int((len(transposedData) - 1) / 6)
 print(N)
 
@@ -98,5 +97,5 @@ def update(p, *fargs):
     shown.append(ax.scatter3D(xdata, ydata, zdata, s=scale, c=np.linspace(0,1,N), cmap=colors))
 
 ani = animation.FuncAnimation(fig, update, frames=len(transposedData[0]), fargs=(10,), interval = 10, blit=False, init_func=init)
-#plt.show()
-ani.save("program/movie/{}{}.mp4".format(filename, method), writer='ffmpeg')
+plt.show()
+#ani.save("program/movie/{}{}.mp4".format(filename, method), writer='ffmpeg')
