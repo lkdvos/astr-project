@@ -39,6 +39,7 @@ vector<Body> initialisation(string filename)
 	double vy = 0;
 	double vz = 0;
 	double m = 0;
+	string name = "";
 
 	// The number of particles in the simulation is defined as numpart
 	int numpart = 0;
@@ -48,8 +49,8 @@ vector<Body> initialisation(string filename)
 	file_input >> tscale;
 	for (int i=0; i<numpart; i++)	// For-loop that reads out lines of file line by line
 		{
-		file_input >> x >> y >> z >> vx >> vy >> vz >> m;
-		Body body = Body(x, y, z, vx, vy, vz, m);
+		file_input >> x >> y >> z >> vx >> vy >> vz >> m >> name;
+		Body body = Body(x, y, z, vx, vy, vz, m, name);
 		// Add each particle to the vector of particles
 		bodies.push_back(body);
 		}

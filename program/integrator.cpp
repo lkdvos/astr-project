@@ -300,6 +300,11 @@ void run(const string method, double h, const double endTime, const size_t print
   string outfile = "data/" + filename + method + ".txt";
   ofstream f(outfile, ios::trunc);
   f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << "#";
+  for (size_t i=0; i!=a.N(); ++i) {
+    f << sep << a.body(i).name();
+  }
+  f << "\n";
   f << setprecision(10);
   f.close();
 

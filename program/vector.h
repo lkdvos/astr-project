@@ -135,14 +135,15 @@ class Body {
 	Vec _x;
 	Vec _v;
 	double _m;
+	string _name;
 
 public:
 
 //constructor
-	Body() { _x = Vec(); _v = Vec(); _m = 1; }
-	Body(double mass) { _x = Vec(); _v = Vec(); _m = mass; }
-	Body(Vec pos, Vec vel, double mass) { _x = pos; _v = vel; _m = mass; }
-	Body(double x, double y, double z, double v_x, double v_y, double v_z, double m);
+	Body() { _x = Vec(); _v = Vec(); _m = 1; _name = "";}
+	Body(double mass) { _x = Vec(); _v = Vec(); _m = mass; _name = "";}
+	Body(Vec pos, Vec vel, double mass) { _x = pos; _v = vel; _m = mass; _name = "";}
+	Body(double x, double y, double z, double v_x, double v_y, double v_z, double m, string name);
 
 
 //getter
@@ -155,6 +156,7 @@ public:
 	double v_x() const;
 	double v_y() const;
 	double v_z() const;
+	string name() const;
 
 //declare body/phaseVec assignment operators
 	Body& operator+=(phaseVec b);
@@ -166,6 +168,7 @@ public:
 	void changeMass(double factor);
 	void changePos(double factor);
 	void changeVel(double factor);
+	void changeName(string name);
 
 //operator for easy printing
 //need friend function to acces private class data

@@ -156,10 +156,11 @@ phaseVec operator/(phaseVec a, double s) { return a /= s; }
 //==============================================================================
 
 //constructor
-Body::Body(double x, double y, double z, double v_x, double v_y, double v_z, double m) {
+Body::Body(double x, double y, double z, double v_x, double v_y, double v_z, double m, string name) {
 	_x = Vec(x, y, z);
 	_v = Vec(v_x, v_y, v_z);
 	_m = m;
+	_name = name;
 }
 
 //getter
@@ -169,6 +170,7 @@ double Body::z() const { return _x.z(); }
 double Body::v_x() const { return _v.x(); }
 double Body::v_y() const { return _v.y(); }
 double Body::v_z() const { return _v.z(); }
+string Body::name() const { return _name; }
 
 //changing body
 void Body::changeMass(double factor) {
@@ -181,6 +183,10 @@ void Body::changePos(double factor) {
 
 void Body::changeVel(double factor) {
 	_v *= factor;
+}
+
+void Body::changeName(string name) {
+	_name = name;
 }
 
 //body assignment operators
