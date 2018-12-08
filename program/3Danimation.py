@@ -105,10 +105,7 @@ def update(p, *fargs):
 	"""
 	# Uncomment this if you want to plot an inputfile that doesn't contain Earth/Moon system and/or Jupiter/Io system.
 
-	if p>0 or p==-1:
-             ax.plot(punten[:p,i,0], punten[:p,i,1], punten[:p,i,2], linestyle='-', marker='None', color=colors[i], label=objects[i])
-	if p==1:
-	     ax.legend()
+        ax.plot(punten[:p,i,0], punten[:p,i,1], punten[:p,i,2], linestyle='-', marker='None', color=colors[i], label=objects[i])
 	"""
 
         """
@@ -144,7 +141,7 @@ def update(p, *fargs):
 	# Uncomment this if you want to plot an inputfile that doesn't contain Earth/Moon system and/or Jupiter/Io system.
 	
 	handles,labels = ax.get_legend_handles_labels()
-	ax.legend(handles[0:n], labels[0:n], loc='upper center', bbox_to_anchor=(1, 1.12),
+	ax.legend(handles[0:n], labels[0:n], loc='upper center', bbox_to_anchor=(0.5, 1.12),
 	fancybox=True, shadow=True, ncol=n)
 	"""
 	
@@ -152,7 +149,7 @@ def update(p, *fargs):
 	# Uncomment this if you want to plot an inputfile that contains Earth/Moon system and/or Jupiter/Io system.
 
 	handles,labels = ax1.get_legend_handles_labels()
-        ax1.legend(handles[0:n], labels[0:n], loc='upper center', bbox_to_anchor=(1, 1.12),
+        ax1.legend(handles[0:n], labels[0:n], loc='upper center', bbox_to_anchor=(1.5, 1.12),
         fancybox=True, shadow=True, ncol=n)
 	"""
 	
