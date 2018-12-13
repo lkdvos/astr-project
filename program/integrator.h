@@ -19,26 +19,22 @@ vector<phaseVec> driverFunc(const Constellation& a);
 
 //RK4 integrator dependencies:
 //==============================================================================
+vector<phaseVec> RK4_1(const double h, Constellation a);
+vector<phaseVec> RK4_2(const double h, Constellation a, const vector<phaseVec>& k1);
+vector<phaseVec> RK4_3(const double h, Constellation a, const vector<phaseVec>& k2);
+vector<phaseVec> RK4_4(const double h, Constellation a, const vector<phaseVec>& k3);
 
-vector<phaseVec> k_1(const double h, Constellation a);
-vector<phaseVec> k_2(const double h, Constellation a);
-vector<phaseVec> k_3(const double h, Constellation a);
-vector<phaseVec> k_4(const double h, Constellation a);
-
-void RK41(const double h, Constellation& a);
-void RK4(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
+void RK4(const double h, Constellation& a);
 
 //Verlet integrator:
 //==============================================================================
-
-void Verlet1(const double h, Constellation& a, vector<phaseVec>& driver);
-void Verlet(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
+void Verlet(const double h, Constellation& a, vector<phaseVec>& driver);
 
 //imbedded RK:
 //==============================================================================
-
-void ERK1(const double h, Constellation& a);
-void ERK2(const double h, Constellation& a);
+void ERK5(const double h, Constellation& a, const vector<phaseVec>& K1, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5, const std::vector<phaseVec>& K6);
+void ERK4(const double h, Constellation& a, const vector<phaseVec>& K1, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5);
+void ERK_VAR(const double h_upper, const double h_lower, double& h, Constellation& a);
 void ERK(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
 
 
@@ -47,6 +43,10 @@ void ERK(const double h, const size_t steps, const size_t printInterval, const s
 void FR1(const double h, Constellation& a);
 void FR(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
 
+
+//Loop method
+//==============================================================================
 void run(const string method, double h, const double endTime, const size_t printInterval, const string filename, Constellation a);
+void run(const string method, double h_upper, double h_lower, const double endTime, const size_t printInterval, const string filename, Constellation a);
 
 #endif

@@ -30,6 +30,8 @@ int main() {
 
   // Define timestep h and number of timesteps
   double h;
+  double h_upper;
+  double h_lower;
   double endTime;
   size_t printInterval;
   string filename;
@@ -74,10 +76,17 @@ int main() {
 
       cout << "method" << endl;
       cin >> method;
+      if (method == "ERK_VAR") {
+        cout << "precision upper bound:" << endl;
+        cin >> h_upper;
+        cout << "precision lower bound:" << endl;
+        cin >> h_lower;
+      } else {
+        // ask for h, steps, printInterval
+        cout << "h (in days):" << endl;
+        cin >> h;
+      }
 
-      // ask for h, steps, printInterval
-      cout << "h (in days):" << endl;
-      cin >> h;
 
       cout << "endTime (in days):" << endl;
       cin >> endTime;
@@ -100,14 +109,17 @@ int main() {
       steps = 0;
       funcEvals = 0;
 
-      run(method, h, endTime, printInterval, filename, a);
-
+      if (method == "ERK_VAR") {
+        run(method, h_upper, h_lower, endTime, printInterval, filename, a);
+      } else {
+        run(method, h, endTime, printInterval, filename, a);
+      }
 
       duration = ( clock() - start ) / (double) CLOCKS_PER_SEC;
       cout << "Ran " << steps << " steps, " << funcEvals << " evaluations and took " << duration << " seconds." << endl;
       cout << "Averaged " << steps / duration << " steps per second." << endl;
       cout << "Averaged " << funcEvals / steps << " evaluations per step." << endl;
-      
+
       ofstream d("duration/duration_" + filename + "_" + method + ".txt", ios::trunc);
       d << a.N() << " " << duration/steps << endl;
       d.close();
