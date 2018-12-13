@@ -107,7 +107,10 @@ int main() {
       cout << "Ran " << steps << " steps, " << funcEvals << " evaluations and took " << duration << " seconds." << endl;
       cout << "Averaged " << steps / duration << " steps per second." << endl;
       cout << "Averaged " << funcEvals / steps << " evaluations per step." << endl;
-
+      
+      ofstream d("duration/duration_" + filename + "_" + method + ".txt", ios::trunc);
+      d << a.N() << " " << duration/steps << endl;
+      d.close();
     }
 
 
