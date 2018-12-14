@@ -13,10 +13,10 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include "vector.h" 
+#include "vector.h"
 using namespace std;
 
 
-vector<Body> initialisation(string filename);
+vector<Body> initialisation(string filename, double& h, double& endTime, size_t& printInterval, double& h_upper, double& h_lower);
 
 #endif
