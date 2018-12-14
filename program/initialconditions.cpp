@@ -60,6 +60,7 @@ vector<Body> initialisation(string filename, double& h, double& endTime, size_t&
 		file_input >> h;
 		file_input >> endTime;
 		file_input >> printInterval;
+		cout << h << '\t' << endTime << '\t' << printInterval << endl;
 		if (file_input.peek()!=EOF) {
 			file_input >> h_upper;
 			file_input >> h_lower;
@@ -68,5 +69,8 @@ vector<Body> initialisation(string filename, double& h, double& endTime, size_t&
 			h_lower = 0;
 		}
 	}
+	//rescale timestep in days
+	h *= 24*3600/tscale;
+	endTime *= 24*3600/tscale;
 	return bodies;
 	}

@@ -300,12 +300,12 @@ vector<phaseVec> operator*(double s, vector<phaseVec> a) {
 //OPERATOR FOR PRINTING BODY
 //==============================================================================
 ostream& operator<<(ostream& os, const Body& b) {
-	os << b.pos() << sep << b.vel();
+	os << b.pos();
 	return os;
 }
 
 ostream& operator<<(ostream& os, const phaseVec& v) {
-	os << v.pos() << sep << v.vel();
+	os << v.pos();
 	return os;
 }
 
@@ -414,6 +414,7 @@ void Constellation::center() {
 	}
 
 	transform(phaseVec(x_com, v_com) / M * -1);
+	_E = calcEtot();
 }
 
 void Constellation::scaleMass(double Mtot) {

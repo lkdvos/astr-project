@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
 
-filename = "SolarSystemRK4"
+filename = "testH/RK4test_03"
 
 # Open datafile.
 f = open("program/data/{}.txt".format(filename), "r")
@@ -26,7 +26,7 @@ for line in f:
 objects.remove("#")
 f.close()
 
-n = int((len(invoer[0])-1)/6) # n is number of objects.
+n = int((len(invoer[0])-1)/3) # n is number of objects.
 
 
 # Make list of following structure:
@@ -42,7 +42,7 @@ for lijn in invoer[0:len(invoer)]:
     tijd.append(lijn[0])
     deel = []
     for i in range(n):
-        deel.append([lijn[1+i*6], lijn[2+i*6], lijn[3+i*6]])
+        deel.append([lijn[1+i*3], lijn[2+i*3], lijn[3+i*3]])
     punten.append(deel)
 print(len(punten))
 
@@ -99,8 +99,8 @@ def update(p, *fargs):
 
 # animatie
 ani = animation.FuncAnimation(fig, update, frames = len(punten), fargs=(10,), interval = 100, blit = False, repeat = False)
-ani.save("program/animations/{}.mp4".format(filename))
+#ani.save("program/animations/{}.mp4".format(filename))
 
 # plot eindconfiguratie
-update(-1)
+#update(-1)
 plt.show()

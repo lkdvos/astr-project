@@ -218,7 +218,7 @@ void FR(const double h, Constellation& a) {
 //==============================================================================
 void run(const string method, double h, const double endTime, const size_t printInterval, const string filename, Constellation a) {
   //create and reset datafile
-  string outfile = "data/" + filename + method + ".txt";
+  string outfile = "data/" + filename;
   ofstream f(outfile, ios::trunc);
   f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
   f << "#";
@@ -229,7 +229,7 @@ void run(const string method, double h, const double endTime, const size_t print
   f << setprecision(10);
   f.close();
 
-  string outfile_Energy = "data/" + filename + method + "_Energy.txt";
+  string outfile_Energy = "dataEnergy/" + filename;
   ofstream g(outfile_Energy, ios::trunc);
   g << "#{tijd} #Energiefout \n";
   g << setprecision(15);
@@ -288,7 +288,7 @@ void run(const string method, double h, const double endTime, const size_t print
 
 void run(const string method, double h_upper, double h_lower, const double endTime, const size_t printInterval, const string filename, Constellation a) {
   //create and reset datafile
-  string outfile = "data/" + filename + method + ".txt";
+  string outfile = "data/" + method + filename;
   ofstream f(outfile, ios::trunc);
   f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
   f << "#";
@@ -299,7 +299,7 @@ void run(const string method, double h_upper, double h_lower, const double endTi
   f << setprecision(10);
   f.close();
 
-  string outfile_Energy = "data/" + filename + method + "_Energy.txt";
+  string outfile_Energy = "dataEnergy/" + method + filename;
   ofstream g(outfile_Energy, ios::trunc);
   g << "#{tijd} #Energiefout \n";
   g << setprecision(15);
