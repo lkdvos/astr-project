@@ -74,11 +74,8 @@ int main() {
         cin >> h;
       }
 
-<<<<<<< HEAD
       cout << "Manual mode? [y/n] " << endl;
       cin >> manual;
-=======
->>>>>>> 26b34c94aecf62e0d7d9af17a72a3b82b248443c
 
       if (manual == "y") {
         // ask for h, steps, printInterval
