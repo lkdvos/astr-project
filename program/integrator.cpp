@@ -39,7 +39,6 @@ vector<phaseVec> gravity(const Constellation& a) {
   }
   return output;
 }
-
 vector<phaseVec> xpunt(const Constellation& a) {
   size_t N = a.N();
   vector<phaseVec> output(N);
@@ -52,7 +51,6 @@ vector<phaseVec> xpunt(const Constellation& a) {
   }
   return output;
 }
-
 vector<phaseVec> driverFunc(const Constellation& a) {
   //fill in v_punt and x_punt
   vector<phaseVec> output = gravity(a) + xpunt(a);
@@ -62,69 +60,42 @@ vector<phaseVec> driverFunc(const Constellation& a) {
 //implement RK4 integrator:
 //==============================================================================
 
-vector<phaseVec> k_1(const double h, Constellation a) {
+vector<phaseVec> RK4_1(const double h, Constellation a) {
   return h * driverFunc(a);
 }
-
-vector<phaseVec> k_2(const double h, Constellation a) {
+vector<phaseVec> RK4_2(const double h, Constellation a, const vector<phaseVec>& k1) {
   //need to explicitely copy constellation to change time and position
   //without changing original constellation
   a.addT(h/2);
-  a.addVec(k_1(h, a)/2);
+  a.addVec(k1/2);
   return h * driverFunc(a);
 }
-
-vector<phaseVec> k_3(const double h, Constellation a){
+vector<phaseVec> RK4_3(const double h, Constellation a, const vector<phaseVec>& k2){
   //idem as before
   a.addT(h/2);
-  a.addVec(k_2(h, a)/2);
+  a.addVec(k2/2);
   return h * driverFunc(a);
 }
-
-vector<phaseVec> k_4(const double h,  Constellation a){
+vector<phaseVec> RK4_4(const double h,  Constellation a, const vector<phaseVec>& k3){
   //idem as before
   a.addT(h);
-  a.addVec(k_3(h, a));
+  a.addVec(k3);
   return h * driverFunc(a);
 }
 
-void RK41(const double h, Constellation& a) {
-  a.addVec(k_1(h, a) / 6 + k_2(h, a) / 3 + k_3(h, a) / 3 + k_4(h, a) / 6);
+void RK4(const double h, Constellation& a) {
+  vector<phaseVec> k1 = RK4_1(h, a);
+  vector<phaseVec> k2 = RK4_2(h, a, k1);
+  vector<phaseVec> k3 = RK4_3(h, a, k2);
+  vector<phaseVec> k4 = RK4_4(h, a, k3);
+  a.addVec(k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6);
   a.addT(h);
-}
-
-void RK4(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
-  //create datafile (also resets the file)
-  string outfile = "data/" + filename + "RK4.txt";
-  ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
-  f << setprecision(5);
-  f.close();
-
-
-  string outfile_Energy = "data/" + filename + "RK4_Energy.txt";
-  ofstream g(outfile_Energy, ios::trunc);
-  g << "#{tijd} #Energiefout \n";
-  g << setprecision(5);
-  g.close();
-
-  for (size_t i=0; i!=steps; ++i) {
-    if (i%printInterval == 0) {
-      //print data only every printInterval points.
-      a.printFile(outfile);
-      a.printEnergy(outfile_Energy);
-    }
-
-    //update constellation
-    RK41(h, a);
-  }
-
 }
 
 //Verlet integrator
 //==============================================================================
 
-void Verlet1(const double h, Constellation& a, vector<phaseVec>& driver) {
+void Verlet(const double h, Constellation& a, vector<phaseVec>& driver) {
   //update velocities to n+1/2
   a.addVec(h / 2 * driver);
   //update positions to n+1
@@ -135,82 +106,45 @@ void Verlet1(const double h, Constellation& a, vector<phaseVec>& driver) {
   a.addT(h);
 }
 
-
-
-void Verlet(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
-  //create datafile (also resets the file)
-  string outfile = "data/" + filename + "Verlet.txt";
-  ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
-  f << setprecision(5);
-  f.close();
-
-
-  string outfile_Energy = "data/" + filename + "Verlet_Energy.txt";
-  ofstream g(outfile_Energy, ios::trunc);
-  g << "#{tijd} #Energiefout \n";
-  g << setprecision(5);
-  g.close();
-
-  //initialize driver outside of update function to avoid calculating twice
-  vector<phaseVec> driver = gravity(a);
-  for (size_t i=0; i!=steps; ++i) {
-    if (i%printInterval == 0) {
-      //print data only every printInterval points.
-      a.printFile(outfile);
-      a.printEnergy(outfile_Energy);
-    }
-    Verlet1(h, a, driver);
-  }
-}
-
 //implement embedded RK:
 //==============================================================================
-
-vector<phaseVec> K_1(const double h, const Constellation a) {
+vector<phaseVec> RK45_1(const double h, const Constellation a) {
 	return h * driverFunc(a);
 }
-
-vector<phaseVec> K_2(const double h, Constellation a) {
+vector<phaseVec> RK45_2(const double h, Constellation a, const vector<phaseVec>& K1) {
 	a.addT(h / 4);
-	a.addVec(K_1(h, a) / 4);
+	a.addVec(K1 / 4);
 	return h * driverFunc(a);
 }
-
-vector<phaseVec> K_3(const double h, Constellation a) {
-	a.addT(3.0*h / 8);
-	a.addVec(3.0 / 32 * K_1(h, a) + 9.0 / 32 * K_2(h, a));
+vector<phaseVec> RK45_3(const double h, Constellation a, const vector<phaseVec>& K1, const vector<phaseVec>& K2) {
+	a.addT(h * 3 / 8);
+	a.addVec(3.0 / 32 * K1 + 9.0 / 32 * K2);
 	return h * driverFunc(a);
 }
-
-vector<phaseVec> K_4(const double h, Constellation a) {
+vector<phaseVec> RK45_4(const double h, Constellation a, const vector<phaseVec>& K1, const vector<phaseVec>& K2, const vector<phaseVec>& K3) {
 	a.addT(12.0*h / 13);
-	a.addVec(1932.0 / 2197 * K_1(h, a) - 7200.0 / 2197 * K_2(h, a) + 7296.0 / 2197 * K_3(h, a));
+	a.addVec(1932.0 / 2197 * K1 - 7200.0 / 2197 * K2 + 7296.0 / 2197 * K3);
 	return h * driverFunc(a);
 }
-
-vector<phaseVec> K_5(const double h, Constellation a) {
+vector<phaseVec> RK45_5(const double h, Constellation a, const vector<phaseVec>& K1, const vector<phaseVec>& K2, const vector<phaseVec>& K3, const vector<phaseVec>& K4) {
 	a.addT(h);
-	a.addVec(439.0 / 216 * K_1(h, a) - 8.0*K_2(h, a) + 3680.0 / 513 * K_3(h, a) - 845.0 / 4104 * K_4(h, a));
+	a.addVec(439.0 / 216 * K1 - 8.0*K2 + 3680.0 / 513 * K3 - 845.0 / 4104 * K4);
 	return h * driverFunc(a);
 }
-
-vector<phaseVec> K_6(const double h, Constellation a) {
+vector<phaseVec> RK45_6(const double h, Constellation a, const vector<phaseVec>& K1, const vector<phaseVec>& K2, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5) {
 	a.addT(h / 2);
-	a.addVec(-8.0 / 27 * K_1(h, a) + 2 * K_2(h, a) - 3544.0 / 2565 * K_3(h, a) + 1859.0 / 4104 * K_4(h, a) - 11.0 / 40 * K_5(h, a));
+	a.addVec(-8.0 / 27 * K1 + 2 * K2 - 3544.0 / 2565 * K3 + 1859.0 / 4104 * K4 - 11.0 / 40 * K5);
 	return h * driverFunc(a);
 }
 
-void ERK1(const double h, Constellation& a) {
-	a.addVec(16.0/135.0 * K_1(h, a) + 6656.0/12825.0 * K_3(h, a) + 28561.0 / 56430 * K_4(h, a) - 9.0 / 50 * K_5(h, a) + 2.0/55 * K_6(h, a));
+void ERK5(const double h, Constellation& a, const vector<phaseVec>& K1, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5, const std::vector<phaseVec>& K6) {
+	a.addVec(16.0/135.0 * K1 + 6656.0/12825.0 * K3 + 28561.0 / 56430 * K4 - 9.0 / 50 * K5 + 2.0/55 * K6);
   a.addT(h);
 }
-
-void ERK2(const double h, Constellation& a) {
-	a.addVec(25.0 / 216 * K_1(h, a) + 1408.0 / 2565 * K_3(h, a) + 2197.0 / 4104 * K_4(h, a) - 1.0 / 5 * K_5(h, a));
+void ERK4(const double h, Constellation& a, const vector<phaseVec>& K1, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5) {
+	a.addVec(25.0 / 216 * K1 + 1408.0 / 2565 * K3 + 2197.0 / 4104 * K4 - 1.0 / 5 * K5);
   a.addT(h);
 }
-
 
 double error(const Constellation& a, const Constellation& b) {
   size_t N = a.N();
@@ -224,37 +158,48 @@ double error(const Constellation& a, const Constellation& b) {
   return output;
 }
 
-void ERK(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
-  //create datafile (also resets the file)
-  string outfile = "data/" + filename + "ERK.txt";
-  ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
-  f << setprecision(5);
-  f.close();
+void ERK(const double h, Constellation& a) {
 
-  string outfile_Energy = "data/" + filename + "ERK_Energy.txt";
-  ofstream g(outfile_Energy, ios::trunc);
-  g << "#{tijd} #Energiefout \n";
-  g << setprecision(5);
-  g.close();
+  vector<phaseVec> K1 = RK45_1(h, a);
+  vector<phaseVec> K2 = RK45_2(h, a, K1);
+  vector<phaseVec> K3 = RK45_3(h, a, K1, K2);
+  vector<phaseVec> K4 = RK45_4(h, a, K1, K2, K3);
+  vector<phaseVec> K5 = RK45_5(h, a, K1, K2, K3, K4);
+  vector<phaseVec> K6 = RK45_6(h, a, K1, K2, K3, K4, K5);
 
-  for (size_t i=0; i!=steps; ++i) {
-    if (i%printInterval == 0) {
-      //print data only every printInterval points.
-      a.printFile(outfile);
-      a.printEnergy(outfile_Energy);
-    }
+  ERK5(h, a, K1, K3, K4, K5, K6);
+}
+void ERK_VAR(const double h_upper, double h_lower, double& h, Constellation& a) {
+  Constellation b1;
+  Constellation b2;
+  double err;
+  do {
+    vector<phaseVec> K1 = RK45_1(h, a);
+    vector<phaseVec> K2 = RK45_2(h, a, K1);
+    vector<phaseVec> K3 = RK45_3(h, a, K1, K2);
+    vector<phaseVec> K4 = RK45_4(h, a, K1, K2, K3);
+    vector<phaseVec> K5 = RK45_5(h, a, K1, K2, K3, K4);
+    vector<phaseVec> K6 = RK45_6(h, a, K1, K2, K3, K4, K5);
 
-    //update constellation
-    ERK1(h, a);
+    b1 = a;
+    b2 = a;
+    ERK4(h, b1, K1, K3, K4, K5);
+    ERK5(h, b2, K1, K3, K4, K5, K6);
+    err = error(b1, b2);
+    h /= 2;
+  } while (err > h_upper);
+  if (err < h_lower) {
+    h *= 2;
   }
+  a = b2;
+  h *= 2;
 }
 
 //Forest Ruth
 //==============================================================================
 const double theta = 1.35120719195966;
 
-void FR1(const double h, Constellation& a) {
+void FR(const double h, Constellation& a) {
 	//step 1
   a.addVec(xpunt(a) * theta / 2 * h);
   a.addVec(gravity(a) * theta * h);
@@ -269,32 +214,8 @@ void FR1(const double h, Constellation& a) {
   a.addT(h);
 }
 
-void FR(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a) {
-  //create datafile (also resets the file)
-  string outfile = "data/" + filename + "FR.txt";
-  ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
-  f << setprecision(5);
-  f.close();
-
-  string outfile_Energy = "data/" + filename + "FR_Energy.txt";
-  ofstream g(outfile_Energy, ios::trunc);
-  g << "#{tijd} #Energiefout \n";
-  g << setprecision(5);
-  g.close();
-
-  for (size_t i=0; i!=steps; ++i) {
-    if (i%printInterval == 0) {
-      //print data only every printInterval points.
-      a.printFile(outfile);
-      a.printEnergy(outfile_Energy);
-    }
-
-    //update constellation
-    FR1(h, a);
-  }
-}
-
+//Loop Methods
+//==============================================================================
 void run(const string method, double h, const double endTime, const size_t printInterval, const string filename, Constellation a) {
   //create and reset datafile
   string outfile = "data/" + filename + method + ".txt";
@@ -322,7 +243,7 @@ void run(const string method, double h, const double endTime, const size_t print
         a.printEnergy(outfile_Energy);
       }
       //update constellation
-      RK41(h, a);
+      RK4(h, a);
       steps += 1;
     }
   } else if (method == "FR") {
@@ -333,7 +254,7 @@ void run(const string method, double h, const double endTime, const size_t print
         a.printEnergy(outfile_Energy);
       }
       //update constellation
-      FR1(h, a);
+      FR(h, a);
       steps += 1;
     }
   } else if (method == "ERK") {
@@ -344,7 +265,7 @@ void run(const string method, double h, const double endTime, const size_t print
         a.printEnergy(outfile_Energy);
       }
       //update constellation
-      ERK1(h, a);
+      ERK(h, a);
       steps += 1;
     }
   } else if (method == "VER") {
@@ -356,37 +277,45 @@ void run(const string method, double h, const double endTime, const size_t print
         a.printFile(outfile);
         a.printEnergy(outfile_Energy);
       }
-      Verlet1(h, a, driver);
+      Verlet(h, a, driver);
       steps += 1;
     }
-  } else if (method == "ERK_VAR") {
-    double minError = 1e-5;
-    double maxError = 1e-4;
+  } else {
+    cout << "method not recognised" << endl;
+  }
+}
+
+
+void run(const string method, double h_upper, double h_lower, const double endTime, const size_t printInterval, const string filename, Constellation a) {
+  //create and reset datafile
+  string outfile = "data/" + filename + method + ".txt";
+  ofstream f(outfile, ios::trunc);
+  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << "#";
+  for (size_t i=0; i!=a.N(); ++i) {
+    f << sep << a.body(i).name();
+  }
+  f << "\n";
+  f << setprecision(10);
+  f.close();
+
+  string outfile_Energy = "data/" + filename + method + "_Energy.txt";
+  ofstream g(outfile_Energy, ios::trunc);
+  g << "#{tijd} #Energiefout \n";
+  g << setprecision(15);
+  g.close();
+
+  if (method == "ERK_VAR") {
     size_t i = 0;
+    double h = 1;
     while (a.time() < endTime) {
       if (i%printInterval == 0) {
         //print data only every printInterval points.
         a.printFile(outfile);
         a.printEnergy(outfile_Energy);
       }
+      ERK_VAR(h_upper, h_lower, h, a);
       i += 1;
-      double err = 1;
-      Constellation b1;
-      Constellation b2;
-      while (err > maxError) {
-        h /= 2.0;
-        b1 = a;
-        b2 = a;
-        ERK1(h, b1);
-        ERK2(h, b2);
-        err = error(b1, b2);
-        cout << "halved step " << h << " at time " << a.time() << endl;
-      }
-      if (err < minError) {
-        h *= 2.0;
-        cout << "doubled step " << h << endl;
-      }
-      a = b1;
       steps += 1;
     }
   } else {
