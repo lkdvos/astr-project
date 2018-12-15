@@ -1,7 +1,0 @@
-N
-G
-tscale
-x y z vx  vy  vz  M name
-...
-
-h endTime printInterval (h_upper h_lower)

@@ -1,0 +1,7 @@
+N
+G
+tscale (=1 for init file in seconds)
+x y z vx vy vz M name
+...
+...
+h endTime printInterval [h_upper h_lower]*
