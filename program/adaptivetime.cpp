@@ -31,7 +31,7 @@ double hstep(double hmax, Constellation a){
 			}
 		}
 	}
-	double exp = min(maxexp,floor(log2(rmin / 3650.0)));
+	double exp = min(maxexp,floor(log2(10*h/rmin)));
 	h = hmax / pow(2, exp);
 	return h;
 }
