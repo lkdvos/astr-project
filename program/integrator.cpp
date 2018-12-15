@@ -248,7 +248,7 @@ void run(const string method, const double h, const double endTime, const size_t
   //create and reset datafile f
   string outfile = "data/" + filename;
   ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << "#{tijd} #{positie1} #{...} \n";
   f << "#";
   for (size_t i=0; i!=a.N(); ++i) {
     f << sep << a.body(i).name();
@@ -320,7 +320,7 @@ void run(const string method, double h_upper, double h_lower, const double endTi
   //create and reset datafile f
   string outfile = "data/" + method + filename;
   ofstream f(outfile, ios::trunc);
-  f << "#{tijd} #{positie1} #{snelheid1} #{...} \n";
+  f << "#{tijd} #{positie1} #{...} \n";
   f << "#";
   for (size_t i=0; i!=a.N(); ++i) {
     f << sep << a.body(i).name();
