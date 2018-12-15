@@ -10,7 +10,8 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-
+#include <dirent.h>
+#include <string>
 #include "vector.h"
 #include "initialconditions.h"
 using namespace std;
@@ -20,6 +21,7 @@ extern double tscale;
 
 // Function that reads out initial conditions for a certain N-body simulation
 // (contained in a file) and returns a vector containing the particles of the simulation
+// also reads h, endTime, printInterval, h_upper and h_lower if they are present
 vector<Body> initialisation(string filename, double& h, double& endTime, size_t& printInterval, double& h_upper, double& h_lower)
 	{
 	ifstream file_input(filename);
@@ -56,21 +58,38 @@ vector<Body> initialisation(string filename, double& h, double& endTime, size_t&
 		bodies.push_back(body);
 		}
 	//check if end of file, else read h, endTime, printInterval
+	//if none are present then dont change initial h, endTime, printInterval
 	if (file_input.peek()!=EOF) {
 		file_input >> h;
 		file_input >> endTime;
 		file_input >> printInterval;
-		cout << h << '\t' << endTime << '\t' << printInterval << endl;
+		//rescale timestep in days
+		h *= 24*3600/tscale;
+		endTime *= 24*3600/tscale;
+
+		//DEBUG:cout << h << '\t' << endTime << '\t' << printInterval << endl;
 		if (file_input.peek()!=EOF) {
+			//check if end of file, else read h_upper, h_lower
 			file_input >> h_upper;
 			file_input >> h_lower;
-		} else {
-			h_upper = 0;
-			h_lower = 0;
 		}
 	}
-	//rescale timestep in days
-	h *= 24*3600/tscale;
-	endTime *= 24*3600/tscale;
 	return bodies;
-	}
+}
+
+void GetFilesInDirectory(vector<string>& out, const string &directory) {
+  DIR *dir;
+  struct dirent *ent;
+	//open directory for reading within init/
+  dir = opendir(("init/" + directory).c_str());
+
+	//loop over all files in directory and add their name to vector
+  while ((ent = readdir(dir)) != NULL) {
+      const string file_name = ent->d_name;
+      if (file_name[0] == '.') { // Skipping hidden folders or files
+        continue;
+			}
+      out.push_back(file_name);
+  }
+  closedir(dir);
+}

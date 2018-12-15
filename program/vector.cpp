@@ -14,15 +14,11 @@ using namespace std;
 
 //==============================================================================
 //
-//define some constants
+//define some constants, global parameters in program, extern here
 //
 //==============================================================================
 
-//const double G = 6.67408 * pow(10, -11);
-extern double xscale;
-extern double tscale;
-extern double Mscale;
-
+//unnecesary, parameters in header
 
 //==============================================================================
 //
@@ -30,11 +26,13 @@ extern double Mscale;
 //
 //==============================================================================
 
-
 //implement norm functions
+//==============================================================================
+
 double Vec::r() const { return sqrt(_x * _x + _y * _y + _z * _z); }
 double Vec::r2() const { return _x * _x + _y * _y + _z * _z; }
 double Vec::r3() const { return r()*r2(); }
+
 //implement inproduct
 double Vec::mult(Vec u) const { return _x*u._x + _y*u._y + _z*u._z; }
 
@@ -78,8 +76,9 @@ Vec& Vec::operator*=(Vec v) {
 	_z = a * v._y - b * v._x;
 	return *this;
 }
-//==============================================================================
+
 //implement operator functions between Vec and double
+//==============================================================================
 
 Vec operator+(Vec a, Vec b) { return a += b; }
 Vec operator-(Vec a, Vec b) { return a -= b; }
@@ -91,8 +90,8 @@ Vec operator*(double s, Vec a) { return a *= s; }
 Vec operator/(double s, Vec a) { return a /= s; }
 Vec operator/(Vec a, double s) { return a /= s; }
 
-//==============================================================================
 //implement printing operator for Vec
+//==============================================================================
 
 ostream& operator<<(ostream& os, const Vec& a) {
 	os << a.x() << sep << a.y() << sep << a.z();
@@ -149,6 +148,14 @@ phaseVec operator-(phaseVec a, phaseVec b) { return a -= b; }
 phaseVec operator*(phaseVec a, double s) { return a *= s; }
 phaseVec operator/(phaseVec a, double s) { return a /= s; }
 
+//operator for printing
+//==============================================================================
+
+ostream& operator<<(ostream& os, const phaseVec& v) {
+	os << v.pos();
+	return os;
+}
+
 //==============================================================================
 //
 //implement class for a body in the system
@@ -191,6 +198,7 @@ void Body::changeName(string name) {
 
 //body assignment operators
 //==============================================================================
+
 Body& Body::operator+=(phaseVec b) {
 	_x += b.pos();
 	_v += b.vel();
@@ -217,15 +225,24 @@ Body& Body::operator/=(double s) {
 
 //operators for the class body
 //==============================================================================
+
 Body operator+(Body b, phaseVec v) { return b += v; }
 Body operator-(Body b, phaseVec v) { return b -= v; }
 Body operator*(Body b, double s) { return b *= s; }
 Body operator/(Body b, double s) { return b /= s; }
 
+//operator for printing body
+//==============================================================================
+
+ostream& operator<<(ostream& os, const Body& b) {
+	os << b.pos();
+	return os;
+}
 
 //==============================================================================
 //
-//create operations for vector<Body> adding/multiplication/etc
+//create operations for vector<Body> and vector<phaseVec>
+// (adding/multiplication/etc)
 //
 //==============================================================================
 
@@ -295,18 +312,6 @@ vector<phaseVec> operator*(double s, vector<phaseVec> a) {
 		output[i] = a[i] * s;
 	}
 	return output;
-}
-
-//OPERATOR FOR PRINTING BODY
-//==============================================================================
-ostream& operator<<(ostream& os, const Body& b) {
-	os << b.pos();
-	return os;
-}
-
-ostream& operator<<(ostream& os, const phaseVec& v) {
-	os << v.pos();
-	return os;
 }
 
 //==============================================================================
@@ -423,6 +428,7 @@ void Constellation::scaleMass(double Mtot) {
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changeMass(Mscale);
 	}
+	_E = calcEtot();
 }
 
 void Constellation::rescale() {
@@ -439,11 +445,13 @@ void Constellation::rescale() {
 	for (size_t i=0; i!=N(); ++i) {
 		_y[i].changeVel(tscale);
 	}
+	_E = calcEtot();
 }
 
 //functions for printing the current Constellation
 //==============================================================================
 
+//(debug) prints amount of particles followed by particles to terminal.
 ostream& operator<<(ostream& os, const Constellation& a) {
 	os << "constellation with " << a.N() << " particles \n";
 	for (size_t i=0; i!=a.N(); ++i) {
@@ -453,6 +461,7 @@ ostream& operator<<(ostream& os, const Constellation& a) {
 	return os;
 }
 
+//(debug) prints data stored in class to terminal.
 void Constellation::print() const {
 	cout << "time " << _t << sep << "energy " << _E << sep;
 	cout << "size " << _y.size() << endl;
@@ -462,31 +471,34 @@ void Constellation::print() const {
 	cout << endl;
 }
 
+//prints current data to file outfile
 void Constellation::printFile(const string outfile) const {
 	ofstream f;
 	f.open(outfile, ios::app);
-
-
+	f << setprecision(printPrecision);
+	//print time
 	f << _t / 3600 / 24 * tscale;
-	for (size_t i=0; i!=_y.size(); ++i) {
-		f << sep << _y[i];
-	}
+	//print all particles
+	for (size_t i=0; i!=_y.size(); ++i) { f << sep << _y[i]; }
+	//newline
 	f << '\n';
-
 	f.close();
 }
 
+//prints relative energy error data to file outfile
 void Constellation::printEnergy(const string outfile) const {
 	ofstream f(outfile, ios::app);
-	f << setprecision(15);
+	f << setprecision(printPrecision);
+	//print time
 	f << _t / 3600 / 24 * tscale;
+	//print relative energy error
 	f << sep << abs((_E - calcEtot())/_E) << '\n';
 	f.close();
 }
 
 //==============================================================================
 //
-//printing/debugging neccesities
+//printing/debugging to terminal
 //
 //==============================================================================
 

@@ -1,3 +1,4 @@
+//safeguard includes
 #ifndef INTEGRATOR_H
 #define INTEGRATOR_H
 
@@ -11,7 +12,18 @@ using namespace std;
 //include the data structures from "vector.h"
 #include "vector.h"
 
-//driver functions
+//==============================================================================
+//
+//define some constants
+//
+//==============================================================================
+
+extern double G;
+extern size_t steps;
+extern size_t funcEvals;
+extern const char sep;
+
+//driver functions:
 //==============================================================================
 vector<phaseVec> gravity(const Constellation& a);
 vector<phaseVec> speed(const Constellation& a);
@@ -26,27 +38,27 @@ vector<phaseVec> RK4_4(const double h, Constellation a, const vector<phaseVec>& 
 
 void RK4(const double h, Constellation& a);
 
-//Verlet integrator:
-//==============================================================================
-void Verlet(const double h, Constellation& a, vector<phaseVec>& driver);
-
-//imbedded RK:
+//embedded RK:
 //==============================================================================
 void ERK5(const double h, Constellation& a, const vector<phaseVec>& K1, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5, const std::vector<phaseVec>& K6);
 void ERK4(const double h, Constellation& a, const vector<phaseVec>& K1, const vector<phaseVec>& K3, const vector<phaseVec>& K4, const vector<phaseVec>& K5);
 void ERK_VAR(const double h_upper, const double h_lower, double& h, Constellation& a);
 void ERK(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
 
+//Verlet integrator:
+//==============================================================================
+void Verlet(const double h, Constellation& a, vector<phaseVec>& driver);
 
-//Foresth Ruth
+//Foresth Ruth:
 //==============================================================================
 void FR1(const double h, Constellation& a);
 void FR(const double h, const size_t steps, const size_t printInterval, const string filename, Constellation a);
 
-
 //Loop method
 //==============================================================================
-void run(const string method, double h, const double endTime, const size_t printInterval, const string filename, Constellation a);
-void run(const string method, double h_upper, double h_lower, const double endTime, const size_t printInterval, const string filename, Constellation a);
+//method for fixed time step h
+void run(const string method, const double h, const double endTime, const size_t printInterval, const string filename, Constellation a);
+//method for variable time step h
+void run(const string method, const double h_upper, const double h_lower, const double endTime, const size_t printInterval, const string filename, Constellation a);
 
 #endif

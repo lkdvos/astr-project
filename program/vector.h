@@ -16,18 +16,26 @@
 #include <vector>
 using namespace std;
 
+
+//==============================================================================
+//
+//define some constants, global parameters in program, extern here
+//
+//==============================================================================
+
+//define seperator for data files
+const char sep = '\t';
+extern double G;
+extern double xscale;
+extern double tscale;
+extern double Mscale;
+const int printPrecision = 15;
+
 //==============================================================================
 //
 //create class for 3D vectors with operators and assignment operators
 //
 //==============================================================================
-//define seperator for data files
-const char sep = '\t';
-//const double G = 6.67408 * pow(10, -11);
-extern double G;
-extern double xscale;
-extern double tscale;
-extern double Mscale;
 
 class Vec {
 	double _x;
@@ -35,7 +43,6 @@ class Vec {
 	double _z;
 
 public:
-
 //constructor
 	Vec() { _x = 0; _y = 0; _z = 0; }
 	Vec(double x, double y) { _x = x; _y = y; _z = 0; }
@@ -60,9 +67,9 @@ public:
 	Vec& operator-=(Vec v);
 	Vec& operator*=(double s);
 	Vec& operator/=(double s);
-	Vec& operator*=(Vec v);
+	Vec& operator*=(Vec v); // defined as cross-product
 
-//friend function for acces to private class data
+//friend function for acces to private class data for printing
 	friend ostream& operator<<(ostream& os, const Vec& a);
 };
 

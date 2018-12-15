@@ -5,12 +5,8 @@
 #include <iostream>
 #include <ctime>
 #include <stdio.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <string>
 
-#include "main.h"
 #include "integrator.h"
 #include "initialconditions.h"
 using namespace std;
@@ -22,39 +18,21 @@ double Mscale = 1;
 size_t steps = 0;
 size_t funcEvals = 0;
 
-/*
-To compile the multiple files:
-LINUX:
-open terminal
-go to directory with program files
-run "g++ -std=c++11 -Wall -O3 -o program *cpp"
-run ./program
-*/
-
-void GetFilesInDirectory(vector<string>& out, const string &directory)
-  {
-  DIR *dir;
-  struct dirent *ent;
-  dir = opendir(("init/" + directory).c_str());
-  while ((ent = readdir(dir)) != NULL) {
-      const string file_name = ent->d_name;
-      //const string full_file_name = directory + "/" + file_name;
-      if (file_name[0] == '.') { // Skipping hidden folders or files
-        continue; }
-
-      out.push_back(file_name);
-  }
-  closedir(dir);
-} // GetFilesInDirectory
-
 int main() {
-
+//============================================================================
+//Choose what files to initialise
+//============================================================================
+  //declare variables for choosing initialisation
   string inputName;
   string folder;
   vector<string> filenames;
   string initMethod;
-  cout << "Initialisation by file or folder?" << endl;
+  //read initialisation method
+  //todo safeguard input
+  cout << "Initialisation by file or folder?\nReading a folder might only work on a Linux system" << endl;
   cin >> initMethod;
+
+  //add all initialisation files to vector
   if (initMethod == "file") {
     cout << "Please provide a filename with initial conditions." << endl;
     cin >> inputName;
@@ -62,6 +40,7 @@ int main() {
     folder = "";
   } else if (initMethod == "folder") {
     cout << "Please provide a folder with initial conditions." << endl;
+    cout << "Make sure a folder with the same name exists in the data folders." << endl;
     cin >> inputName;
     folder = inputName + "/";
     GetFilesInDirectory(filenames, folder);
@@ -70,14 +49,14 @@ int main() {
 //==============================================================================
 //Define method and method parameters
 //==============================================================================
-
+  //declare variables for choosing method
   string method;
   string manual;
 
   cout << "Manual mode? [y/n] " << endl;
   cin >> manual;
 
-  cout << "method" << endl;
+  cout << "Integration method? [RK4/ERK/FR/VER/ERK_VAR] " << endl;
   cin >> method;
 
   double h;
@@ -85,37 +64,47 @@ int main() {
   double h_lower;
   double endTime;
   size_t printInterval;
-
+  //manual input of parameters
   if (manual == "y") {
     // ask for h, steps, printInterval
     if (method == "ERK_VAR") {
-      cout << "precision upper bound:" << endl;
+      //variable timestep bounds
+      cout << "precision for upper bound?:" << endl;
       cin >> h_upper;
-      cout << "precision lower bound:" << endl;
+      cout << "precision for lower bound?:" << endl;
       cin >> h_lower;
     } else {
-      // ask for h, steps, printInterval
+      //non variable: ask for h
       cout << "h (in days):" << endl;
       cin >> h;
-
-      cout << "endTime (in days):" << endl;
-      cin >> endTime;
-
-      cout << "printInterval (in steps):" << endl;
-      cin >> printInterval;
     }
+    //ask for endTime and printInterval
+    cout << "endTime (in days):" << endl;
+    cin >> endTime;
+
+    cout << "printInterval (in steps):" << endl;
+    cin >> printInterval;
+
     //rescale timestep in days
     h *= 24*3600/tscale;
     endTime *= 24*3600/tscale;
 
-
   } else if (manual == "n") {
-    cout << "using parameters from file" << endl;
+    //parameters from files
+    cout << "Using parameters from files." << endl;
+
   } else {
+    //give message for wrong input, will fail rest of program
+    //todo restart asking for manual
     cout << "wrong input, not [y/n]" << endl;
   }
 
+//==============================================================================
+//integrate all chosen files with chosen parameters and method
+//==============================================================================
+//loop over files
   while (not filenames.empty()) {
+    //pick one file and delete from stack
     string filename = filenames.back();
     cout << "\n Now doing " << filename << '\n' << endl;
     filenames.pop_back();
@@ -125,8 +114,11 @@ int main() {
     vector<Body> bodies;
     bodies = initialisation("init/" + folder + filename, h, endTime, printInterval, h_upper, h_lower);
     Constellation a(bodies);
+
+    // change constellation to COM frame
     a.center();
 
+    //declare variables for performance test
     clock_t start;
     double duration;
     start = clock();
@@ -134,19 +126,33 @@ int main() {
     funcEvals = 0;
 
     if (method == "ERK_VAR") {
+      //loop variable timestep
       run(method, h_upper, h_lower, endTime, printInterval, folder + method + filename, a);
     } else {
+      //loop fixed timestep
       run(method, h, endTime, printInterval, folder + method + filename, a);
     }
-
+    //calculate time taken to run loop
     duration = ( clock() - start ) / (double) CLOCKS_PER_SEC;
     cout << "Ran " << steps << " steps, " << funcEvals << " evaluations and took " << duration << " seconds." << endl;
     cout << "Averaged " << steps / duration << " steps per second." << endl;
     cout << "Averaged " << funcEvals / steps << " evaluations per step." << endl;
 
-    ofstream d("duration/" + folder + method, ios::trunc);
+    //add performance data to file
+    ofstream d("duration/" + folder + method + filename, ios::trunc);
+    d << method << endl;
     d << a.N() << " " << duration/steps << endl;
+    if (method == "ERK_VAR") {
+      //print h bounds for variable timestep
+      d << h_upper << " " << h_lower << " " << endTime << " " << printInterval << endl;
+    } else {
+      //print h for fixed timestep
+      d << h << " " << endTime << " " << printInterval << endl;
+    }
     d.close();
-  }
+  } //end loop over files
 
-}
+
+  //explicitly return int for main
+  return 1;
+} //end main
